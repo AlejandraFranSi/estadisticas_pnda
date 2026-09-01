@@ -21,11 +21,12 @@ const armarBase = async function () {
         break
       }
       result.result?.forEach((d) => {
+        //console.log(d)
         let conjunto = {
-          nombre_categoria: d.groups.display_name,
-          clave_categoria: d.groups.name,
-          descripcion_categoria: d.groups.description,
-          id_categoria: d.groups.id,
+          nombre_categoria: d.groups[0].display_name,
+          clave_categoria: d.groups[0].name,
+          descripcion_categoria: d.groups[0].description,
+          id_categoria: d.groups[0].id,
           nombre_institucion: d.organization.title,
           descripcion_institucion: d.organization.description,
           imagen_institucion: d.organization.image_url,
@@ -44,6 +45,7 @@ const armarBase = async function () {
             descripcion_recurso: r.description,
             url_recurso: r.url,
             frecuencia_actualizacion: r.update_frequency,
+            creacion_recurso: r.created,
           }
           data.value.push(recurso)
         })
