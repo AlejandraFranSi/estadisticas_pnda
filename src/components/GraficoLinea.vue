@@ -1,6 +1,7 @@
 <script setup>
-import { defineProps, onMounted } from 'vue'
+import { defineProps, onMounted, onUnmounted, ref } from 'vue'
 import * as dfd from 'danfojs'
+import * as d3 from 'd3'
 
 const props = defineProps({
   data: {
@@ -9,29 +10,226 @@ const props = defineProps({
   },
 })
 
-const cellSize = 16 // height of a day
-const height = cellSize * 7 // height of a week (5 days + padding)
-const width = (cellSize + 1.5) * 53 // width of the chart
+const contenedorSVG = ref(null)
+const svg = ref(null)
+const el_tooltip = ref()
+const dimensiones = ref({
+  altoContenedor: 650,
+  altoGrafica: 0,
+  anchoContenedor: 0,
+  anchoGrafica: 0,
+})
+const margenes = ref({
+  derecha: 20,
+  izquierda: 60,
+  arriba: 20,
+  abajo: 20,
+})
+const minSize = 12
+const cellSize = ref(16) // Alto del rectángulo-día
+const altoAnio = ref(cellSize.value * 9) // Alto de una semana, es decir, alto del año (7 days + padding)
+const escalaColor = ref(null)
 
-onMounted(() => {
-  console.log(props.data)
-  let dataframe = new dfd.DataFrame(props.data).resetIndex({ drop: true })
-  //dataframe.print()
-  console.log(dataframe.columns)
-  dataframe
-    .column('creacion_recurso')
-    .apply((x) => {
-      let fecha = new Date(x)
-      let dia = fecha.getDate()
-      let mes = fecha.getMonth()
-      let anio = fecha.getFullYear()
-      return `${dia}/${mes}/${anio}`
+const data_anual = ref(null)
+const hoyEs = new Date()
+const masAntiguo = ref(null)
+const maximoSubidos = ref(null)
+// Cuenta cuantas semanas hay a partir del inicio del año hasta la fecha indicada
+const timeWeek = d3.timeMonday
+const countDay = (i) => (i + 6) % 7
+const formatDay = (i) => 'DLMMJVS'[i]
+const formatMonth = d3.timeFormat('%b')
+const selectedDate = ref(null)
+const selectedReps = ref(null)
+
+/**
+ * Esta función genera una lista con entradas tipo
+ * { fecha: dateTime, reps: int }
+ * donde se cuenta el numero de bases de datos subidas por día desde el primer dia que se subio una base
+ */
+const prepararData = function () {
+  const fechas = props.data.map((d) => {
+    return {
+      //fecha_og: d.creacion_recurso,
+      fecha_parseada: d3.timeFormat('%Y %m %d')(new Date(d.creacion_recurso.slice(0, 23))),
+      reps: 1,
+    }
+  })
+  let df = new dfd.DataFrame(fechas)
+  df = df.groupby(['fecha_parseada']).sum()
+  let frecuencias = dfd
+    .toJSON(df)
+    .map((d) => {
+      return { fecha: d3.timeParse('%Y %m %d')(d.fecha_parseada), reps: d.reps_sum }
     })
-    .valueCounts()
-    .print()
-  //.column('creacion_recurso').valueCounts().print()
+    .sort((a, b) => a.fecha - b.fecha)
+  masAntiguo.value = new Date(frecuencias[0]['fecha'])
+  maximoSubidos.value = d3.max(frecuencias.map((d) => d.reps))
+
+  let serie_anual = []
+  for (let d = new Date(masAntiguo.value); d <= hoyEs; d.setDate(d.getDate() + 1)) {
+    let prueba = frecuencias.find(
+      (n) => d3.timeFormat('%Y %m %d')(n.fecha) === d3.timeFormat('%Y %m %d')(d),
+    )
+    if (prueba) {
+      serie_anual.push(prueba)
+    } else {
+      serie_anual.push({ fecha: new Date(d), reps: 0 })
+    }
+  }
+  data_anual.value = d3.groups(serie_anual, (d) => d.fecha.getFullYear())
+}
+
+const abrirTooltip = function (event, target) {
+  selectedDate.value = d3.timeFormat('%d/%m/%Y')(target.fecha)
+  selectedReps.value = target.reps
+  el_tooltip.value.style('visibility', 'visible').selectAll('text')
+}
+
+const ajustarPosicionTooltip = function (event, target) {
+  //console.log(d3.pointer(event, document.body));
+  const xPosition = event.x + 10
+  const yPosition = event.y - 10
+  el_tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
+}
+
+const cerrarTooltip = function () {
+  el_tooltip.value.style('visibility', 'hidden')
+}
+
+/**
+ * Esta función calcula las dimensiones del gráfico y crea las escalas necesarias
+ * */
+function calcularDimensiones() {
+  // Calculamos las dimensiones responsivas de nuestro contenedor y gráfica
+  dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth
+  dimensiones.value.anchoGrafica =
+    dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda
+
+  let proporcion = dimensiones.value.anchoGrafica / 60
+  cellSize.value = proporcion > minSize ? proporcion : minSize
+  altoAnio.value = cellSize.value * 9
+
+  dimensiones.value.altoContenedor =
+    altoAnio.value * data_anual.value.length + margenes.value.arriba + margenes.value.abajo
+  dimensiones.value.altoGrafica =
+    dimensiones.value.altoContenedor - margenes.value.arriba - margenes.value.abajo
+
+  // Armamos la escala de color
+  escalaColor.value = d3.scaleSqrt().domain([0, maximoSubidos.value]).range(['#E9E9E9', '#276FBF'])
+}
+
+function dibujarCalendario() {
+  // Agregamos los grupos por año
+  const year = svg.value
+    .selectAll('g')
+    .data(data_anual.value)
+    .join('g')
+    .attr(
+      'transform',
+      (d, i) =>
+        `translate(${margenes.value.izquierda},${altoAnio.value * i + cellSize.value * 1.5})`,
+    )
+
+  // Agregamos las etiquetas del año
+  year
+    .append('text')
+    .attr('x', -5)
+    .attr('y', -5)
+    .attr('font-weight', 'bold')
+    .attr('text-anchor', 'end')
+    .attr('font-size', cellSize.value)
+    .text(([key]) => key)
+
+  // Agregamos las etiquetas de los días
+  year
+    .append('g')
+    .attr('text-anchor', 'end')
+    .selectAll()
+    .data(d3.range(0, 7))
+    .join('text')
+    .attr('x', -5)
+    .attr('y', (i) => (countDay(i) + 0.5) * cellSize.value)
+    .attr('dy', '0.31em')
+    .attr('font-size', cellSize.value)
+    .text(formatDay)
+
+  // Agregamos los rectángulos
+  year
+    .append('g')
+    .selectAll()
+    .data(([anio, registros]) => registros)
+    .join('rect')
+    .attr('width', cellSize.value - 1)
+    .attr('height', cellSize.value - 1)
+    .attr('x', (d) => timeWeek.count(d3.timeYear(d.fecha), d.fecha) * cellSize.value + 0.5)
+    .attr('y', (d) => countDay(d.fecha.getDay()) * cellSize.value + 0.5)
+    .attr('fill', (d) => escalaColor.value(d.reps))
+    .on('mouseenter', abrirTooltip)
+    .on('mousemove', ajustarPosicionTooltip)
+    .on('mouseleave', cerrarTooltip)
+
+  // Agregamos los meses
+  const month = year
+    .append('g')
+    .selectAll()
+    .data(([, values]) => d3.timeMonths(d3.timeMonth(values[0].fecha), values.at(-1).fecha))
+    .join('g')
+
+  // Agregamos las etiquetas de los meses
+  month
+    .append('text')
+    .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
+    .attr('y', -5)
+    .attr('font-size', cellSize.value)
+    .text(formatMonth)
+}
+
+const reescalanding = function () {
+  console.log('Cambio el ancho de la pantalla')
+  calcularDimensiones()
+}
+onMounted(() => {
+  contenedorSVG.value = document.querySelector('.contenedor-svg')
+  svg.value = d3.select('svg.el-svg')
+  el_tooltip.value = d3.select('div.el-tooltip')
+  el_tooltip.value.style('visibility', 'hidden')
+  prepararData()
+  calcularDimensiones()
+  dibujarCalendario()
+  window.addEventListener('resize', reescalanding)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', reescalanding)
 })
 </script>
 <template>
-  <div class="contenedo-lineas">Aqui va el gráfico de lineas</div>
+  <div class="contenedor-svg">
+    <h1>Frecuencia de publicación de bases de datos</h1>
+    <div class="el-tooltip">
+      El día <span>{{ selectedDate }}</span> se subieron <span>{{ selectedReps }}</span> bases de
+      datos.
+    </div>
+    <svg class="el-svg" :height="dimensiones.altoGrafica" :width="dimensiones.anchoGrafica"></svg>
+  </div>
 </template>
+<style scoped>
+.contenedor-svg {
+  width: 100%;
+}
+
+.el-tooltip {
+  position: absolute;
+  z-index: 2;
+  background-color: #252323;
+  color: white;
+  opacity: 0.93;
+  height: auto;
+  width: 150px;
+  font-size: 14px;
+  padding: 5px;
+}
+span {
+  font-weight: bold;
+}
+</style>

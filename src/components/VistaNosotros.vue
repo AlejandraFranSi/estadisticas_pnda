@@ -55,7 +55,7 @@ const armarBase = async function () {
       error.value = error
     }
   } while (true)
-  total_bases.value = d3.format(',.2r')(data.value.length)
+  total_bases.value = d3.format(',')(data.value.length)
   estaCargando.value = false
 }
 onMounted(() => {
@@ -89,7 +89,7 @@ onMounted(() => {
     </div>
 
     <div v-if="!estaCargando && data.length > 0">
-      <div class="flex flex-contenido-inicio">
+      <div class="flex-contenido-inicio">
         <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
           Total de bases de datos:
           <button clasS="boton-primario boton-chico">{{ total_bases }}</button>
