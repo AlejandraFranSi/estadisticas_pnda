@@ -13,6 +13,10 @@ const props = defineProps({
 const contenedorSVG = ref(null)
 const svg = ref(null)
 const el_tooltip = ref()
+const gruposAnios = ref()
+const grupoDias = ref()
+const etiquetasMeses = ref()
+const etiquetasDias = ref()
 const dimensiones = ref({
   altoContenedor: 650,
   altoGrafica: 0,
@@ -78,6 +82,25 @@ const prepararData = function () {
     }
   }
   data_anual.value = d3.groups(serie_anual, (d) => d.fecha.getFullYear())
+
+  // Agregamos los grupos por año
+  gruposAnios.value = svg.value
+    .selectAll('g')
+    .data(data_anual.value)
+    .join('g')
+    .attr('class', 'grupo-anual')
+    .attr(
+      'transform',
+      (d, i) =>
+        `translate(${margenes.value.izquierda},${altoAnio.value * i + cellSize.value * 1.5})`,
+    )
+
+  grupoDias.value = gruposAnios.value.append('g').attr('class', 'rect-dias')
+  etiquetasMeses.value = gruposAnios.value.append('g').attr('class', 'etiquetas-meses')
+  etiquetasDias.value = gruposAnios.value
+    .append('g')
+    .attr('text-anchor', 'end')
+    .attr('class', 'etiquetas-dias')
 }
 
 const abrirTooltip = function (event, target) {
@@ -120,74 +143,123 @@ function calcularDimensiones() {
 }
 
 function dibujarCalendario() {
-  // Agregamos los grupos por año
-  const year = svg.value
-    .selectAll('g')
-    .data(data_anual.value)
-    .join('g')
-    .attr(
-      'transform',
-      (d, i) =>
-        `translate(${margenes.value.izquierda},${altoAnio.value * i + cellSize.value * 1.5})`,
+  // Agregamos las etiquetas del año
+  gruposAnios.value
+    .selectAll('text')
+    .data(([key]) => [key])
+    .join(
+      (enter) => {
+        enter
+          .append('text')
+          .attr('class', 'etiqueta_anio')
+          .attr('x', -5)
+          .attr('y', -5)
+          .attr('font-weight', 'bold')
+          .attr('text-anchor', 'end')
+          .attr('font-size', cellSize.value)
+          .text((d) => d)
+      },
+      (update) => {
+        update
+          .attr('x', -5)
+          .attr('y', -5)
+          .attr('font-weight', 'bold')
+          .attr('text-anchor', 'end')
+          .attr('font-size', cellSize.value)
+          .text((d) => d)
+      },
+      (exit) => {
+        exit.remove()
+      },
     )
 
-  // Agregamos las etiquetas del año
-  year
-    .append('text')
-    .attr('x', -5)
-    .attr('y', -5)
-    .attr('font-weight', 'bold')
-    .attr('text-anchor', 'end')
-    .attr('font-size', cellSize.value)
-    .text(([key]) => key)
-
   // Agregamos las etiquetas de los días
-  year
-    .append('g')
-    .attr('text-anchor', 'end')
+  etiquetasDias.value
     .selectAll()
     .data(d3.range(0, 7))
-    .join('text')
-    .attr('x', -5)
-    .attr('y', (i) => (countDay(i) + 0.5) * cellSize.value)
-    .attr('dy', '0.31em')
-    .attr('font-size', cellSize.value)
-    .text(formatDay)
+    .join(
+      (enter) => {
+        enter
+          .append('text')
+          .attr('x', -5)
+          .attr('y', (i) => (countDay(i) + 0.5) * cellSize.value)
+          .attr('dy', '0.31em')
+          .attr('font-size', cellSize.value)
+          .text(formatDay)
+      },
+      (update) => {
+        update
+          .attr('x', -5)
+          .attr('y', (i) => (countDay(i) + 0.5) * cellSize.value)
+          .attr('dy', '0.31em')
+          .attr('font-size', cellSize.value)
+          .text(formatDay)
+      },
+      (exit) => {
+        exit.remove()
+      },
+    )
 
   // Agregamos los rectángulos
-  year
-    .append('g')
-    .selectAll()
+  grupoDias.value
+    .selectAll('rect')
     .data(([anio, registros]) => registros)
-    .join('rect')
-    .attr('width', cellSize.value - 1)
-    .attr('height', cellSize.value - 1)
-    .attr('x', (d) => timeWeek.count(d3.timeYear(d.fecha), d.fecha) * cellSize.value + 0.5)
-    .attr('y', (d) => countDay(d.fecha.getDay()) * cellSize.value + 0.5)
-    .attr('fill', (d) => escalaColor.value(d.reps))
-    .on('mouseenter', abrirTooltip)
-    .on('mousemove', ajustarPosicionTooltip)
-    .on('mouseleave', cerrarTooltip)
-
-  // Agregamos los meses
-  const month = year
-    .append('g')
-    .selectAll()
-    .data(([, values]) => d3.timeMonths(d3.timeMonth(values[0].fecha), values.at(-1).fecha))
-    .join('g')
+    .join(
+      (enter) => {
+        enter
+          .append('rect')
+          .attr('width', cellSize.value - 1)
+          .attr('height', cellSize.value - 1)
+          .attr('x', (d) => timeWeek.count(d3.timeYear(d.fecha), d.fecha) * cellSize.value + 0.5)
+          .attr('y', (d) => countDay(d.fecha.getDay()) * cellSize.value + 0.5)
+          .attr('fill', (d) => escalaColor.value(d.reps))
+          .on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)
+      },
+      (update) => {
+        update
+          .attr('width', cellSize.value - 1)
+          .attr('height', cellSize.value - 1)
+          .attr('x', (d) => timeWeek.count(d3.timeYear(d.fecha), d.fecha) * cellSize.value + 0.5)
+          .attr('y', (d) => countDay(d.fecha.getDay()) * cellSize.value + 0.5)
+          .attr('fill', (d) => escalaColor.value(d.reps))
+      },
+      (exit) => {
+        exit.remove()
+      },
+    )
 
   // Agregamos las etiquetas de los meses
-  month
-    .append('text')
-    .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
-    .attr('y', -5)
-    .attr('font-size', cellSize.value)
-    .text(formatMonth)
+  etiquetasMeses.value
+    .selectAll('g.etiquetas-meses')
+    .data(([, values]) => d3.timeMonths(d3.timeMonth(values[0].fecha), values.at(-1).fecha))
+    .join(
+      (enter) => {
+        enter
+          .append('text')
+          .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
+          .attr('y', -5)
+          .attr('font-size', cellSize.value)
+          .text(formatMonth)
+      },
+      (update) => {
+        update
+          .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
+          .attr('y', -5)
+          .attr('font-size', cellSize.value)
+          .text(formatMonth)
+      },
+      (exit) => {
+        exit.remove()
+      },
+    )
 }
 
 const reescalanding = function () {
   console.log('Cambio el ancho de la pantalla')
   calcularDimensiones()
+  dibujarCalendario()
 }
 onMounted(() => {
   contenedorSVG.value = document.querySelector('.contenedor-svg')
