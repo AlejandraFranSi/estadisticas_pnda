@@ -12,11 +12,12 @@ const props = defineProps({
 
 const contenedorSVG = ref(null)
 const svg = ref(null)
-const el_tooltip = ref()
+const tooltip = ref()
 const gruposAnios = ref()
 const grupoDias = ref()
 const etiquetasMeses = ref()
 const etiquetasDias = ref()
+const padding = 8
 const dimensiones = ref({
   altoContenedor: 650,
   altoGrafica: 0,
@@ -34,7 +35,7 @@ const cellSize = ref(16) // Alto del rectángulo-día
 const altoAnio = ref(cellSize.value * 9) // Alto de una semana, es decir, alto del año (7 days + padding)
 const escalaColor = ref(null)
 
-const data_anual = ref(null)
+const dataAnual = ref(null)
 const hoyEs = new Date()
 const masAntiguo = ref(null)
 const maximoSubidos = ref(null)
@@ -81,12 +82,16 @@ const prepararData = function () {
       serie_anual.push({ fecha: new Date(d), reps: 0 })
     }
   }
-  data_anual.value = d3.groups(serie_anual, (d) => d.fecha.getFullYear())
+  dataAnual.value = d3.groups(serie_anual, (d) => d.fecha.getFullYear())
+}
 
-  // Agregamos los grupos por año
+/**
+ * Crea una estructura html agregando grupos para distintos elementos
+ */
+const agregarEstructura = function () {
   gruposAnios.value = svg.value
     .selectAll('g')
-    .data(data_anual.value)
+    .data(dataAnual.value)
     .join('g')
     .attr('class', 'grupo-anual')
     .attr(
@@ -106,18 +111,18 @@ const prepararData = function () {
 const abrirTooltip = function (event, target) {
   selectedDate.value = d3.timeFormat('%d/%m/%Y')(target.fecha)
   selectedReps.value = target.reps
-  el_tooltip.value.style('visibility', 'visible').selectAll('text')
+  tooltip.value.style('visibility', 'visible').selectAll('text')
 }
 
 const ajustarPosicionTooltip = function (event, target) {
   //console.log(d3.pointer(event, document.body));
   const xPosition = event.x + 10
   const yPosition = event.y - 10
-  el_tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
+  tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
 }
 
 const cerrarTooltip = function () {
-  el_tooltip.value.style('visibility', 'hidden')
+  tooltip.value.style('visibility', 'hidden')
 }
 
 /**
@@ -129,12 +134,13 @@ function calcularDimensiones() {
   dimensiones.value.anchoGrafica =
     dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda
 
-  let proporcion = dimensiones.value.anchoGrafica / 60
+  let proporcion =
+    (dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda) / 60
   cellSize.value = proporcion > minSize ? proporcion : minSize
   altoAnio.value = cellSize.value * 9
 
   dimensiones.value.altoContenedor =
-    altoAnio.value * data_anual.value.length + margenes.value.arriba + margenes.value.abajo
+    altoAnio.value * dataAnual.value.length + padding + margenes.value.arriba + margenes.value.abajo
   dimensiones.value.altoGrafica =
     dimensiones.value.altoContenedor - margenes.value.arriba - margenes.value.abajo
 
@@ -142,6 +148,10 @@ function calcularDimensiones() {
   escalaColor.value = d3.scaleSqrt().domain([0, maximoSubidos.value]).range(['#E9E9E9', '#276FBF'])
 }
 
+/**
+ * Esta función se encarga de ajustar las posiciones y tamaños
+ * de todos los textos y los rectángulos que representan los días
+ */
 function dibujarCalendario() {
   // Agregamos las etiquetas del año
   gruposAnios.value
@@ -200,7 +210,32 @@ function dibujarCalendario() {
       },
     )
 
-  // Agregamos los rectángulos
+  // Agregamos las etiquetas de los meses
+  etiquetasMeses.value
+    .selectAll('g.etiquetas-meses')
+    .data(([, values]) => d3.timeMonths(d3.timeMonth(values[0].fecha), values.at(-1).fecha))
+    .join(
+      (enter) => {
+        enter
+          .append('text')
+          .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
+          .attr('y', -5)
+          .attr('font-size', cellSize.value)
+          .text(formatMonth)
+      },
+      (update) => {
+        update
+          .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
+          .attr('y', -5)
+          .attr('font-size', cellSize.value)
+          .text(formatMonth)
+      },
+      (exit) => {
+        exit.remove()
+      },
+    )
+
+  // Agregamos los rectángulos correspondientes a los días
   grupoDias.value
     .selectAll('rect')
     .data(([anio, registros]) => registros)
@@ -229,68 +264,47 @@ function dibujarCalendario() {
         exit.remove()
       },
     )
-
-  // Agregamos las etiquetas de los meses
-  etiquetasMeses.value
-    .selectAll('g.etiquetas-meses')
-    .data(([, values]) => d3.timeMonths(d3.timeMonth(values[0].fecha), values.at(-1).fecha))
-    .join(
-      (enter) => {
-        enter
-          .append('text')
-          .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
-          .attr('y', -5)
-          .attr('font-size', cellSize.value)
-          .text(formatMonth)
-      },
-      (update) => {
-        update
-          .attr('x', (d) => timeWeek.count(d3.timeYear(d), timeWeek.ceil(d)) * cellSize.value + 2)
-          .attr('y', -5)
-          .attr('font-size', cellSize.value)
-          .text(formatMonth)
-      },
-      (exit) => {
-        exit.remove()
-      },
-    )
 }
 
-const reescalanding = function () {
-  console.log('Cambio el ancho de la pantalla')
+const ajustarEscala = function () {
   calcularDimensiones()
   dibujarCalendario()
 }
+
 onMounted(() => {
-  contenedorSVG.value = document.querySelector('.contenedor-svg')
-  svg.value = d3.select('svg.el-svg')
-  el_tooltip.value = d3.select('div.el-tooltip')
-  el_tooltip.value.style('visibility', 'hidden')
+  contenedorSVG.value = document.querySelector('.contenedor-calendario')
+  svg.value = d3.select('svg.svg-calendario')
+  tooltip.value = d3.select('div.tooltip-calendario')
+  tooltip.value.style('visibility', 'hidden')
   prepararData()
+  agregarEstructura()
   calcularDimensiones()
   dibujarCalendario()
-  window.addEventListener('resize', reescalanding)
+  window.addEventListener('resize', ajustarEscala)
 })
 onUnmounted(() => {
-  window.removeEventListener('resize', reescalanding)
+  window.removeEventListener('resize', ajustarEscala)
 })
 </script>
 <template>
-  <div class="contenedor-svg">
-    <h1>Frecuencia de publicación de bases de datos</h1>
-    <div class="el-tooltip">
+  <div class="contenedor-calendario">
+    <div class="tooltip-calendario">
       El día <span>{{ selectedDate }}</span> se subieron <span>{{ selectedReps }}</span> bases de
       datos.
     </div>
-    <svg class="el-svg" :height="dimensiones.altoGrafica" :width="dimensiones.anchoGrafica"></svg>
+    <svg
+      class="svg-calendario"
+      :height="dimensiones.altoGrafica"
+      :width="dimensiones.anchoGrafica"
+    ></svg>
   </div>
 </template>
 <style scoped>
-.contenedor-svg {
+.contenedor-calendario {
   width: 100%;
 }
 
-.el-tooltip {
+.tooltip-calendario {
   position: absolute;
   z-index: 2;
   background-color: #252323;

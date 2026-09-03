@@ -15,7 +15,8 @@ console.log('Cargamos el encabezado')
 .contenedor-header {
   padding: 0px 16px;
   max-height: 80px;
-  background-color: var(--color-secundario-4);
+  background-color: var(--color-secundario-10);
+  color: var(--color-neutro-0);
   align-items: center;
   gap: 16px;
 }
