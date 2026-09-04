@@ -83,7 +83,7 @@ onMounted(async () => {
   <div class="contenedor-nosotros m-2" id="estadisticas-nosotros">
     <div class="flex flex-contenido-centrado" id="spinner-01">
       <div v-if="estaCargando" id="spinner flex-vertical-centrado">
-        <img src="../../public/loading.gif" />
+        <img src="/loading.gif" />
         <p>Solictando datos</p>
       </div>
       <div
