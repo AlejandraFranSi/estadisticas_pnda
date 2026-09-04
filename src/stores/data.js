@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import * as d3 from 'd3'
 
 export const useDataStore = defineStore('data', () => {
+  const seccion = ref('instituciones')
   const dataConjuntos = ref([])
   const dataRecursos = ref([])
   const error = ref(null)
@@ -18,6 +19,9 @@ export const useDataStore = defineStore('data', () => {
   )
   const totalEtiquetas = computed(() => d3.format(',')(setEtiquetas.value.length))
 
+  const actualizarSeccion = function (nuevaSeccion) {
+    seccion.value = nuevaSeccion
+  }
   const armarData = async function () {
     let offset = 0
     do {
@@ -68,6 +72,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
+    seccion,
     dataConjuntos,
     dataRecursos,
     error,
@@ -77,6 +82,7 @@ export const useDataStore = defineStore('data', () => {
     totalCategorias,
     setEtiquetas,
     totalEtiquetas,
+    actualizarSeccion,
     armarData,
   }
 })

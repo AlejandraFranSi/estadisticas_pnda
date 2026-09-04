@@ -16,13 +16,6 @@ const totalBases = computed(() => dataStore.totalRecursos)
 const totalCategorias = computed(() => dataStore.totalCategorias)
 const totalEtiquetas = computed(() => dataStore.totalEtiquetas)
 
-const armarBase = async function () {
-  estaCargando.value = true
-  await dataStore.armarData()
-  console.log(dataStore.categorias)
-  estaCargando.value = false
-}
-
 // Esto es para las categorias
 const dataAgrupada = ref(null)
 const maximoXcategoria = ref(null)
@@ -77,10 +70,12 @@ const prepararData = function () {
   dataAgrupada.value = dataAgrupada.value.sort((a, b) => a[0].localeCompare(b[0]))
 }
 onMounted(async () => {
-  estaCargando.value = true
-  await dataStore.armarData()
+  if (totalBases.value == 0) {
+    estaCargando.value = true
+    await dataStore.armarData()
+    estaCargando.value = false
+  }
   prepararData()
-  estaCargando.value = false
 })
 </script>
 
