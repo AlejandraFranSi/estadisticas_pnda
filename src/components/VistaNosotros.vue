@@ -1,9 +1,9 @@
 <script setup>
 import * as d3 from 'd3'
 import * as dfd from 'danfojs'
+import TarjetaNumeralia from './TarjetaNumeralia.vue'
 import GraficoCalendario from './graficas/GraficoCalendario.vue'
-import GraficoRidgeline from './graficas/GraficoRidgeline.vue'
-import NubePalabras from './graficas/NubePalabras.vue'
+import GraficoBarras from './graficas/GraficoBarras.vue'
 import IconoError from './icons/IconoError.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useDataStore } from '@/stores/data.js'
@@ -17,6 +17,9 @@ const totalBases = computed(() => dataStore.totalRecursos)
 const totalCategorias = computed(() => dataStore.totalCategorias)
 const totalEtiquetas = computed(() => dataStore.totalEtiquetas)
 
+const promedio = ref(null)
+const varianza = ref(null)
+const desviacion = ref(null)
 // Esto es para las categorias
 const dataAgrupada = ref(null)
 const maximoXcategoria = ref(null)
@@ -42,7 +45,7 @@ const timeDomain = [
   '09/2026',
 ]
 
-const prepararData = function () {
+const agruparXCategoria = function () {
   const datum = recursos.value.map((d) => {
     return {
       categoria: d.nombre_categoria,
@@ -70,13 +73,25 @@ const prepararData = function () {
 
   dataAgrupada.value = dataAgrupada.value.sort((a, b) => a[0].localeCompare(b[0]))
 }
-onMounted(async () => {
-  if (totalBases.value == 0) {
-    estaCargando.value = true
-    await dataStore.armarData()
-    estaCargando.value = false
+
+async function calcularPromedio() {
+  const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/promedio_semanal`)
+  if (request.ok) {
+    const respuesta = await request.json()
+    promedio.value = String(respuesta.promedio)
+    varianza.value = String(respuesta.varianza)
+    desviacion.value = String(respuesta.desviacion)
   }
-  prepararData()
+}
+onMounted(async () => {
+  estaCargando.value = true
+
+  if (totalBases.value == 0) {
+    await dataStore.armarData()
+  }
+  agruparXCategoria()
+  await calcularPromedio()
+  estaCargando.value = false
 })
 </script>
 
@@ -100,33 +115,22 @@ onMounted(async () => {
     <div v-if="!estaCargando && recursos.length > 0" id="contenedor-estadisticas">
       <h3>Numeralias generales:</h3>
       <div class="flex flex-contenido-centrado" id="numeralias-grales">
-        <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
-          Total de conjuntos de datos:
-          <button clasS="boton-primario boton-chico">{{ totalConjuntos }}</button>
-        </div>
-        <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
-          Total de bases de datos:
-          <button clasS="boton-primario boton-chico">{{ totalBases }}</button>
-        </div>
-        <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
-          Categorías registradas:
-          <button clasS="boton-primario boton-chico">
-            {{ totalCategorias }}
-          </button>
-        </div>
-        <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
-          Etiquetas empleadas:
-          <button clasS="boton-primario boton-chico">
-            {{ totalEtiquetas }}
-          </button>
-        </div>
+        <TarjetaNumeralia :titulo="'Conjuntos de Datos'" :valor="totalConjuntos" />
+        <TarjetaNumeralia :titulo="'Bases de Datos'" :valor="totalBases" />
+        <TarjetaNumeralia :titulo="'Categorías Registradas'" :valor="totalCategorias" />
+        <TarjetaNumeralia :titulo="'Etiquetas Empleadas'" :valor="totalEtiquetas" />
       </div>
       <h3>Frecuencia de publicación</h3>
       <GraficoCalendario :data="recursos" />
+      <div class="flex flex-contenido-centrado" id="numeralias-grales">
+        <TarjetaNumeralia :titulo="'Promedio Semanal de Recursos Subidos'" :valor="promedio" />
+        <TarjetaNumeralia :titulo="'Varianza'" :valor="varianza" />
+        <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacion" />
+      </div>
 
       <h3>Publicacion por categoría</h3>
-      <div v-if="dataAgrupada">
-        <GraficoRidgeline
+      <div v-if="dataAgrupada && promedio">
+        <GraficoBarras
           v-for="categoria in dataAgrupada"
           :key="categoria[0]"
           :titulo="categoria[0]"
@@ -136,8 +140,8 @@ onMounted(async () => {
         />
       </div>
 
-      <h3>Etiquetas más usadas</h3>
-      <NubePalabras />
+      <!--<h3>Etiquetas más usadas</h3>
+       <NubePalabras /> -->
     </div>
   </div>
 </template>

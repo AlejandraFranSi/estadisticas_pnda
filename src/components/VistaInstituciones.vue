@@ -8,12 +8,11 @@ import { useDataStore } from '@/stores/data.js'
 const dataStore = useDataStore()
 const estaCargando = ref(false)
 const error = computed(() => dataStore.error)
-const dataRecursos = computed(() => dataStore.dataRecursos)
 const totalBases = computed(() => dataStore.totalRecursos)
 
 async function solicitarPlanes() {
   estaCargando.value = true
-  const request = await fetch('http://localhost:8000/api/planes_apertura')
+  const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/planes_apertura`)
   console.log(request)
   estaCargando.value = false
 }

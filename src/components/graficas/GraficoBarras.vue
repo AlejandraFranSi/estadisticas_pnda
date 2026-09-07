@@ -1,5 +1,5 @@
 <script setup>
-import { computed, defineProps, onMounted, onUnmounted, ref } from 'vue'
+import { defineProps, onMounted, onUnmounted, ref } from 'vue'
 import * as d3 from 'd3'
 
 const props = defineProps({
@@ -8,11 +8,11 @@ const props = defineProps({
     type: String,
   },
   data: {
-    default: [],
+    default: () => [],
     type: Array,
   },
   xDomain: {
-    default: [],
+    default: () => [],
     type: Array,
   },
   yMax: {
@@ -28,6 +28,7 @@ const ejeY = ref()
 const escalaX = ref()
 const escalaY = ref()
 const grupoBarras = ref()
+const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR}`
 const dimensiones = ref({
   altoContenedor: 70,
   altoGrafica: 0,
@@ -78,7 +79,7 @@ const calcularDimensiones = function () {
           .attr('y', (d) => escalaY.value(d.reps_sum))
           .attr('height', (d) => escalaY.value(0) - escalaY.value(d.reps_sum))
           .attr('width', escalaX.value.bandwidth())
-          .attr('fill', '#276FBF')
+          .attr('fill', colorPrimario)
       },
       (update) => {
         update
@@ -86,7 +87,7 @@ const calcularDimensiones = function () {
           .attr('y', (d) => escalaY.value(d.reps_sum))
           .attr('height', (d) => escalaY.value(0) - escalaY.value(d.reps_sum))
           .attr('width', escalaX.value.bandwidth())
-          .attr('fill', '#276FBF')
+          .attr('fill', colorPrimario)
       },
       (exit) => {
         exit.remove()

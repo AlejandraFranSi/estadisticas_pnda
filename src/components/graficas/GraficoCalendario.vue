@@ -34,7 +34,8 @@ const minSize = 12
 const cellSize = ref(16) // Alto del rectángulo-día
 const altoAnio = ref(cellSize.value * 9) // Alto de una semana, es decir, alto del año (7 days + padding)
 const escalaColor = ref(null)
-
+const minColor = '#E9E9E9'
+const maxColor = `${import.meta.env.VITE_PRIMARY_COLOR}`
 const dataAnual = ref(null)
 const hoyEs = new Date()
 const masAntiguo = ref(null)
@@ -145,7 +146,7 @@ function calcularDimensiones() {
     dimensiones.value.altoContenedor - margenes.value.arriba - margenes.value.abajo
 
   // Armamos la escala de color
-  escalaColor.value = d3.scaleSqrt().domain([0, maximoSubidos.value]).range(['#E9E9E9', '#276FBF'])
+  escalaColor.value = d3.scaleSqrt().domain([0, maximoSubidos.value]).range([minColor, maxColor])
 }
 
 /**
