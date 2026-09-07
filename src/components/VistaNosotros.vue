@@ -11,7 +11,8 @@ import { useDataStore } from '@/stores/data.js'
 const dataStore = useDataStore()
 const estaCargando = ref(false)
 const error = computed(() => dataStore.error)
-const data = computed(() => dataStore.dataRecursos)
+const recursos = computed(() => dataStore.dataRecursos)
+const totalConjuntos = computed(() => dataStore.totalConjuntos)
 const totalBases = computed(() => dataStore.totalRecursos)
 const totalCategorias = computed(() => dataStore.totalCategorias)
 const totalEtiquetas = computed(() => dataStore.totalEtiquetas)
@@ -42,7 +43,7 @@ const timeDomain = [
 ]
 
 const prepararData = function () {
-  const datum = data.value.map((d) => {
+  const datum = recursos.value.map((d) => {
     return {
       categoria: d.nombre_categoria,
       fecha: d3.timeFormat('%m/%Y')(new Date(d.creacion_recurso.slice(0, 23))),
@@ -96,9 +97,13 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div v-if="!estaCargando && data.length > 0" id="contenedor-estadisticas">
+    <div v-if="!estaCargando && recursos.length > 0" id="contenedor-estadisticas">
       <h3>Numeralias generales:</h3>
       <div class="flex flex-contenido-centrado" id="numeralias-grales">
+        <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
+          Total de conjuntos de datos:
+          <button clasS="boton-primario boton-chico">{{ totalConjuntos }}</button>
+        </div>
         <div class="columna-3 numerico tarjeta p-x-3 p-y-1 m-1">
           Total de bases de datos:
           <button clasS="boton-primario boton-chico">{{ totalBases }}</button>
@@ -117,12 +122,13 @@ onMounted(async () => {
         </div>
       </div>
       <h3>Frecuencia de publicación</h3>
-      <GraficoCalendario :data="data" />
+      <GraficoCalendario :data="recursos" />
 
       <h3>Publicacion por categoría</h3>
       <div v-if="dataAgrupada">
         <GraficoRidgeline
           v-for="categoria in dataAgrupada"
+          :key="categoria[0]"
           :titulo="categoria[0]"
           :data="categoria"
           :x-domain="timeDomain"

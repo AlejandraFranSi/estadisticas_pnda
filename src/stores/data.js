@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import * as d3 from 'd3'
 
 export const useDataStore = defineStore('data', () => {
-  const seccion = ref('instituciones')
+  const seccion = ref('nosotros')
   const dataConjuntos = ref([])
   const dataRecursos = ref([])
   const error = ref(null)
