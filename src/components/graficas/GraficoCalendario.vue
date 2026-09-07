@@ -116,9 +116,9 @@ const abrirTooltip = function (event, target) {
 }
 
 const ajustarPosicionTooltip = function (event, target) {
-  //console.log(d3.pointer(event, document.body));
-  const xPosition = event.x + 10
-  const yPosition = event.y - 10
+  const pointer = d3.pointer(event, document.body)
+  const xPosition = pointer[0] + 15
+  const yPosition = pointer[1] - 10
   tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
 }
 
