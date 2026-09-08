@@ -4,6 +4,7 @@
 import IconoError from './icons/IconoError.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useDataStore } from '@/stores/data.js'
+import TarjetaNumeralia from './TarjetaNumeralia.vue'
 
 const dataStore = useDataStore()
 const estaCargando = ref(false)
@@ -11,14 +12,22 @@ const error = computed(() => dataStore.error)
 const totalBases = computed(() => dataStore.totalRecursos)
 const columnas = ref(null)
 const fechas_sin_parsear = ref(null)
+const fechas_parseadas = ref(null)
+
 async function solicitarPlanes() {
   estaCargando.value = true
   const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/planes_apertura`)
   if (request.ok) {
     const respuesta = await request.json()
     fechas_sin_parsear.value = JSON.parse(respuesta.fechas_sin_parsear)
-    //columnas.value = Object.keys(fechas_sin_parsear.value[0])
-    columnas.value = ['conjunto_datos', 'fecha_publicacion']
+    fechas_parseadas.value = JSON.parse(respuesta.fechas_parseadas)
+    columnas.value = Object.keys(fechas_sin_parsear.value[0])
+    columnas.value = [
+      'conjunto_datos',
+      'fecha_publicacion',
+      'fecha_alternativa',
+      'fecha_formateada',
+    ]
     console.log(columnas.value.sort((a, b) => a.localeCompare(b)))
   }
   estaCargando.value = false
@@ -56,6 +65,17 @@ onMounted(async () => {
       </div>
     </div>
     <div class="contenido" v-if="columnas">
+      <div class="flex">
+        <TarjetaNumeralia
+          :titulo="'Total de registros con fecha rara'"
+          :valor="String(fechas_sin_parsear.length)"
+        />
+        <TarjetaNumeralia
+          :titulo="'Total de registros con fecha parseada'"
+          :valor="String(fechas_parseadas.length)"
+        />
+      </div>
+
       <table>
         <thead class="header-tabla">
           <tr>
@@ -65,8 +85,10 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="fila in fechas_sin_parsear" :key="fila.conjunto_datos">
-            <td v-for="columna in columnas" :key="`td-${columna}`">{{ fila[columna] }}</td>
+          <tr v-for="fila in fechas_parseadas" :key="fila.index">
+            <td v-for="columna in columnas" :key="`td-${fila.index}-${columna}`">
+              {{ fila[columna] }}
+            </td>
           </tr>
         </tbody>
       </table>
