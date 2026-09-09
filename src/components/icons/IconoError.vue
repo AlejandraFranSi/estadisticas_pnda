@@ -2,7 +2,7 @@
   <!--<?xml version="1.0" encoding="utf-8"?> -->
   <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
   <svg
-    fill="#000000"
+    fill="#940b1c"
     width="32px"
     height="32px"
     viewBox="0 0 1024 1024"

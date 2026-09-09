@@ -13,7 +13,11 @@ export const useDataStore = defineStore('data', () => {
   const totalCategorias = computed(() => d3.format(',')(categorias.value.length))
   const setEtiquetas = ref(null)
   const totalEtiquetas = computed(() => d3.format(',')(setEtiquetas.value.length))
+  const institucionSeleccionada = ref(null)
 
+  const actualizarInstitucion = function (nuevaInst) {
+    institucionSeleccionada.value = nuevaInst
+  }
   const actualizarSeccion = function (nuevaSeccion) {
     seccion.value = nuevaSeccion
   }
@@ -41,7 +45,9 @@ export const useDataStore = defineStore('data', () => {
     totalCategorias,
     setEtiquetas,
     totalEtiquetas,
+    institucionSeleccionada,
     actualizarSeccion,
     armarData,
+    actualizarInstitucion,
   }
 })

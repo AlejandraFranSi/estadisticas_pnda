@@ -5,7 +5,7 @@ import * as d3 from 'd3'
 
 const props = defineProps({
   data: {
-    default: [],
+    default: () => [],
     type: Array,
   },
 })
@@ -109,13 +109,13 @@ const agregarEstructura = function () {
     .attr('class', 'etiquetas-dias')
 }
 
-const abrirTooltip = function (event, target) {
+const abrirTooltip = function (_event, target) {
   selectedDate.value = d3.timeFormat('%d/%m/%Y')(target.fecha)
   selectedReps.value = target.reps
   tooltip.value.style('visibility', 'visible').selectAll('text')
 }
 
-const ajustarPosicionTooltip = function (event, target) {
+const ajustarPosicionTooltip = function (event) {
   const pointer = d3.pointer(event, document.body)
   const xPosition = pointer[0] + 15
   const yPosition = pointer[1] - 10

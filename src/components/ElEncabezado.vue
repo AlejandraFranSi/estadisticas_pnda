@@ -1,15 +1,18 @@
 <script setup>
 import IconoEstadisticas from './icons/IconoEstadisticas.vue'
 import { useDataStore } from '@/stores/data.js'
-
 const dataStore = useDataStore()
 </script>
 <template>
   <div class="contenedor-header flex">
     <h3><IconoEstadisticas /> Estadísticas PNDA</h3>
     <div class="secciones flex">
-      <button @click="dataStore.actualizarSeccion('nosotros')">Nosotros</button>
-      <button @click="dataStore.actualizarSeccion('instituciones')">Instituciones</button>
+      <button aria-label="Ir a nosotros" @click="dataStore.actualizarSeccion('nosotros')">
+        Nosotros
+      </button>
+      <button aria-label="Ir a instituciones" @click="dataStore.actualizarSeccion('instituciones')">
+        Instituciones
+      </button>
     </div>
   </div>
 </template>

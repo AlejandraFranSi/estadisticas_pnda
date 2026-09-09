@@ -1,5 +1,5 @@
 <script setup>
-import Encabezado from './components/Encabezado.vue'
+import ElEncabezado from './components/ElEncabezado.vue'
 import VistaInstituciones from './components/VistaInstituciones.vue'
 import VistaNosotros from './components/VistaNosotros.vue'
 import { useDataStore } from '@/stores/data.js'
@@ -9,7 +9,7 @@ const dataStore = useDataStore()
 
 <template>
   <header>
-    <Encabezado />
+    <ElEncabezado />
   </header>
 
   <main>

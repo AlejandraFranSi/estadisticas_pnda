@@ -95,7 +95,6 @@ const calcularDimensiones = function () {
     )
 }
 onMounted(() => {
-  //contenedorSVG.value = document.querySelector(`.contenedor-barras-${categoria.value}`)
   svg.value = d3.select(svgBarras.value)
   grupoBarras.value = svg.value.select('g.grupo-barras')
   ejeX.value = svg.value.select('g.eje-x')
