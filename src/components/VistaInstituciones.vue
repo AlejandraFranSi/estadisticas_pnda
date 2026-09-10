@@ -111,7 +111,7 @@ watch(institucionSeleccionada, async (nv) => {
   /* height: 70vh;*/
 }
 .tabla-totales-institucionales {
-  max-height: 400px;
+  max-height: 350px;
   overflow-y: scroll;
 }
 

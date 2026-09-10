@@ -120,13 +120,13 @@ onMounted(async () => {
         <TarjetaNumeralia :titulo="'Categorías Registradas'" :valor="totalCategorias" />
         <TarjetaNumeralia :titulo="'Etiquetas Empleadas'" :valor="totalEtiquetas" />
       </div>
-      <h3>Frecuencia de publicación</h3>
-      <GraficoCalendario :data="recursos" />
-      <div class="flex flex-contenido-centrado" id="numeralias-grales">
+      <h3 class="m-b-1">Frecuencia de publicación</h3>
+      <div class="flex flex-contenido-centrado m-t-0 m-b-3" id="numeralias-grales">
         <TarjetaNumeralia :titulo="'Promedio Semanal de Recursos Subidos'" :valor="promedio" />
         <TarjetaNumeralia :titulo="'Varianza'" :valor="varianza" />
         <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacion" />
       </div>
+      <GraficoCalendario :data="recursos" />
 
       <h3>Publicacion por categoría</h3>
       <div v-if="dataAgrupada && promedio">

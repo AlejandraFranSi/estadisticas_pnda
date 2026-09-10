@@ -25,12 +25,12 @@ const dimensiones = ref({
   anchoGrafica: 0,
 })
 const margenes = ref({
-  derecha: 20,
-  izquierda: 60,
-  arriba: 20,
+  derecha: 10,
+  izquierda: 10,
+  arriba: 30,
   abajo: 20,
 })
-const minSize = 12
+//const minSize = 12
 const cellSize = ref(16) // Alto del rectángulo-día
 const altoAnio = ref(cellSize.value * 9) // Alto de una semana, es decir, alto del año (7 days + padding)
 const escalaColor = ref(null)
@@ -95,11 +95,6 @@ const agregarEstructura = function () {
     .data(dataAnual.value)
     .join('g')
     .attr('class', 'grupo-anual')
-    .attr(
-      'transform',
-      (d, i) =>
-        `translate(${margenes.value.izquierda},${altoAnio.value * i + cellSize.value * 1.5})`,
-    )
 
   grupoDias.value = gruposAnios.value.append('g').attr('class', 'rect-dias')
   etiquetasMeses.value = gruposAnios.value.append('g').attr('class', 'etiquetas-meses')
@@ -117,8 +112,11 @@ const abrirTooltip = function (_event, target) {
 
 const ajustarPosicionTooltip = function (event) {
   const pointer = d3.pointer(event, document.body)
-  const xPosition = pointer[0] + 15
-  const yPosition = pointer[1] - 10
+  let xPosition = pointer[0] + 10
+  if (xPosition + 100 > dimensiones.value.anchoContenedor) {
+    xPosition = pointer[0] - 160
+  }
+  const yPosition = pointer[1] - 65
   tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
 }
 
@@ -136,14 +134,14 @@ function calcularDimensiones() {
     dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda
 
   let proporcion =
-    (dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda) / 60
-  cellSize.value = proporcion > minSize ? proporcion : minSize
-  altoAnio.value = cellSize.value * 9
+    (dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda) / 57
+  //cellSize.value = proporcion > minSize ? proporcion : minSize
+  cellSize.value = proporcion
+  altoAnio.value = cellSize.value * 8
 
   dimensiones.value.altoContenedor =
     altoAnio.value * dataAnual.value.length + padding + margenes.value.arriba + margenes.value.abajo
-  dimensiones.value.altoGrafica =
-    dimensiones.value.altoContenedor - margenes.value.arriba - margenes.value.abajo
+  dimensiones.value.altoGrafica = dimensiones.value.altoContenedor
 
   // Armamos la escala de color
   escalaColor.value = d3.scaleSqrt().domain([0, maximoSubidos.value]).range([minColor, maxColor])
@@ -154,6 +152,10 @@ function calcularDimensiones() {
  * de todos los textos y los rectángulos que representan los días
  */
 function dibujarCalendario() {
+  // Ajustamos la posicion de los grupos de año
+  gruposAnios.value.attr('transform', (d, i) => {
+    return `translate(${cellSize.value * 3},${margenes.value.arriba + altoAnio.value * i + cellSize.value * 2 * i})`
+  })
   // Agregamos las etiquetas del año
   gruposAnios.value
     .selectAll('text')
@@ -297,6 +299,7 @@ onUnmounted(() => {
       class="svg-calendario"
       :height="dimensiones.altoGrafica"
       :width="dimensiones.anchoGrafica"
+      :transform="`translate(${margenes.izquierda},${0})`"
     ></svg>
   </div>
 </template>
