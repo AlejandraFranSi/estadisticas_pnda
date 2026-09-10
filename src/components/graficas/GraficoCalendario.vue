@@ -103,32 +103,10 @@ const agregarEstructura = function () {
     .attr('text-anchor', 'end')
     .attr('class', 'etiquetas-dias')
 }
-
-const abrirTooltip = function (_event, target) {
-  selectedDate.value = d3.timeFormat('%d/%m/%Y')(target.fecha)
-  selectedReps.value = target.reps
-  tooltip.value.style('visibility', 'visible').selectAll('text')
-}
-
-const ajustarPosicionTooltip = function (event) {
-  const pointer = d3.pointer(event, document.body)
-  let xPosition = pointer[0] + 10
-  if (xPosition + 100 > dimensiones.value.anchoContenedor) {
-    xPosition = pointer[0] - 160
-  }
-  const yPosition = pointer[1] - 65
-  tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
-}
-
-const cerrarTooltip = function () {
-  tooltip.value.style('visibility', 'hidden')
-}
-
 /**
  * Esta función calcula las dimensiones del gráfico y crea las escalas necesarias
  * */
 function calcularDimensiones() {
-  // Calculamos las dimensiones responsivas de nuestro contenedor y gráfica
   dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth
   dimensiones.value.anchoGrafica =
     dimensiones.value.anchoContenedor - margenes.value.derecha - margenes.value.izquierda
@@ -146,7 +124,6 @@ function calcularDimensiones() {
   // Armamos la escala de color
   escalaColor.value = d3.scaleSqrt().domain([0, maximoSubidos.value]).range([minColor, maxColor])
 }
-
 /**
  * Esta función se encarga de ajustar las posiciones y tamaños
  * de todos los textos y los rectángulos que representan los días
@@ -268,10 +245,39 @@ function dibujarCalendario() {
       },
     )
 }
-
+/**
+ * Ajusta las medidas del gráfico al cambiar el tamaño de la pantalla
+ */
 const ajustarEscala = function () {
   calcularDimensiones()
   dibujarCalendario()
+}
+/**
+ * Hace visible un contenedor con información adicional
+ */
+const abrirTooltip = function (_event, target) {
+  selectedDate.value = d3.timeFormat('%d/%m/%Y')(target.fecha)
+  selectedReps.value = target.reps
+  tooltip.value.style('visibility', 'visible').selectAll('text')
+}
+/**
+ * Ajusta la posición del contenedor de información según el puntero
+ * @param event
+ */
+const ajustarPosicionTooltip = function (event) {
+  const pointer = d3.pointer(event, document.body)
+  let xPosition = pointer[0] + 10
+  if (xPosition + 100 > dimensiones.value.anchoContenedor) {
+    xPosition = pointer[0] - 160
+  }
+  const yPosition = pointer[1] - 65
+  tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
+}
+/**
+ * Oculta el contenedor de información adicional
+ */
+const cerrarTooltip = function () {
+  tooltip.value.style('visibility', 'hidden')
 }
 
 onMounted(() => {

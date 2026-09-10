@@ -114,11 +114,9 @@ watch(institucionSeleccionada, async (nv) => {
   max-height: 350px;
   overflow-y: scroll;
 }
-
 .tabla-instituciones {
   height: 100%;
 }
-
 .table {
   display: inline-block;
 }
@@ -129,7 +127,6 @@ th {
   background-color: var(--color-secundario-8);
   color: var(--color-neutro-0);
 }
-
 input {
   color: black;
   width: 20px;

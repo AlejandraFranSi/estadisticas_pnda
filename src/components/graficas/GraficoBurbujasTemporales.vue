@@ -61,7 +61,6 @@ async function solicitarPlanes(inst) {
   }
   estaCargando.value = false
 }
-
 /**
  * A partir de la data del plan de apertura y la data de los recursos publicados
  * se obtiene la fecha más antigua y la más reciente
@@ -75,7 +74,6 @@ function calcularRangoTemporal() {
   intervaloTemporal.value = [temporalidades[0], temporalidades[temporalidades.length - 1]]
   console.log(intervaloTemporal.value)
 }
-
 /**
  * Calcula las dimensiones del gráfico a partir del ancho de la pantalla
  */
@@ -84,7 +82,6 @@ const calcularDimensiones = function () {
   dimensiones.value.anchoGrafica = dimensiones.value.anchoContenedor
   dimensiones.value.altoGrafica = dimensiones.value.altoContenedor
 }
-
 /**
  * Crea las escalas, los ejes, los círuclos y los rectángulos de la data.
  */
@@ -179,7 +176,6 @@ const crearLineaTemporal = function () {
       },
     )
 }
-
 /**
  * Ajusta dimensiones y escalas
  */
@@ -187,7 +183,6 @@ const redimensionar = function () {
   calcularDimensiones()
   crearLineaTemporal()
 }
-
 /**
  * Muestra la información del rectángulo o elemento seleccionado en un tooltip
  * @param target Recupera la información del elemento selecconado
@@ -199,7 +194,6 @@ const abrirTooltip = function (_event, target) {
   }
   tooltip.value.style('visibility', 'visible').selectAll('text')
 }
-
 /**
  * Ajusta la posición del tooltip según la posición del mouse
  * @param event El evento de mousemove
@@ -213,7 +207,6 @@ const ajustarPosicionTooltip = function (event) {
   const yPosition = pointer[1] - 70
   tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
 }
-
 /**
  * Oculta el tooltip
  */
@@ -309,7 +302,6 @@ watch(institucionSeleccionada, async (nv) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .tooltip-tiempo {
   position: absolute;

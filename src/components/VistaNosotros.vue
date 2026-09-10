@@ -16,11 +16,9 @@ const totalConjuntos = computed(() => dataStore.totalConjuntos)
 const totalBases = computed(() => dataStore.totalRecursos)
 const totalCategorias = computed(() => dataStore.totalCategorias)
 const totalEtiquetas = computed(() => dataStore.totalEtiquetas)
-
 const promedio = ref(null)
 const varianza = ref(null)
 const desviacion = ref(null)
-// Esto es para las categorias
 const dataAgrupada = ref(null)
 const maximoXcategoria = ref(null)
 const timeDomain = [
@@ -44,7 +42,7 @@ const timeDomain = [
   '08/2026',
   '09/2026',
 ]
-
+// TODO: Mandar a construir el df a danfo
 const agruparXCategoria = function () {
   const datum = recursos.value.map((d) => {
     return {
@@ -73,7 +71,10 @@ const agruparXCategoria = function () {
 
   dataAgrupada.value = dataAgrupada.value.sort((a, b) => a[0].localeCompare(b[0]))
 }
-
+/**
+ * Hace una petición al backedn que construye un dataframe, agrupa información y
+ * calcula el promedio, la varianza y la desviación estándar
+ */
 async function calcularPromedio() {
   const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/promedio_semanal`)
   if (request.ok) {
@@ -83,9 +84,9 @@ async function calcularPromedio() {
     desviacion.value = String(respuesta.desviacion)
   }
 }
+
 onMounted(async () => {
   estaCargando.value = true
-
   if (totalBases.value == 0) {
     await dataStore.armarData()
   }
@@ -139,9 +140,6 @@ onMounted(async () => {
           :y-max="maximoXcategoria"
         />
       </div>
-
-      <!--<h3>Etiquetas más usadas</h3>
-       <NubePalabras /> -->
     </div>
   </div>
 </template>
