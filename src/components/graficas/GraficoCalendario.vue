@@ -1,15 +1,6 @@
 <script setup>
-import { defineProps, onMounted, onUnmounted, ref } from 'vue'
-import * as dfd from 'danfojs'
+import { onMounted, onUnmounted, ref } from 'vue'
 import * as d3 from 'd3'
-
-const props = defineProps({
-  data: {
-    default: () => [],
-    type: Array,
-  },
-})
-
 const contenedorSVG = ref(null)
 const svg = ref(null)
 const tooltip = ref()
@@ -51,39 +42,36 @@ const selectedReps = ref(null)
 /**
  * Esta función genera una lista con entradas tipo
  * { fecha: dateTime, reps: int }
- * donde se cuenta el numero de bases de datos subidas por día desde el primer dia que se subio una base
+ * donde se cuenta el numero de bases de datos subidas por día
+ * desde el primer dia que se subio una base
  */
-const prepararData = function () {
-  const fechas = props.data.map((d) => {
-    return {
-      //fecha_og: d.creacion_recurso,
-      fecha_parseada: d3.timeFormat('%Y %m %d')(new Date(d.creacion_recurso.slice(0, 23))),
-      reps: 1,
-    }
-  })
-  let df = new dfd.DataFrame(fechas)
-  df = df.groupby(['fecha_parseada']).sum()
-  let frecuencias = dfd
-    .toJSON(df)
-    .map((d) => {
-      return { fecha: d3.timeParse('%Y %m %d')(d.fecha_parseada), reps: d.reps_sum }
-    })
-    .sort((a, b) => a.fecha - b.fecha)
-  masAntiguo.value = new Date(frecuencias[0]['fecha'])
-  maximoSubidos.value = d3.max(frecuencias.map((d) => d.reps))
+const prepararData = async function () {
+  const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recursos_x_dia`)
 
-  let serie_anual = []
-  for (let d = new Date(masAntiguo.value); d <= hoyEs; d.setDate(d.getDate() + 1)) {
-    let prueba = frecuencias.find(
-      (n) => d3.timeFormat('%Y %m %d')(n.fecha) === d3.timeFormat('%Y %m %d')(d),
-    )
-    if (prueba) {
-      serie_anual.push(prueba)
-    } else {
-      serie_anual.push({ fecha: new Date(d), reps: 0 })
+  if (request.status === 200) {
+    const response = await request.json()
+    const df = JSON.parse(response.datum)
+    maximoSubidos.value = response.max
+    let frecuencias = df
+      .map((d) => {
+        return { fecha: d3.timeParse('%Y/%m/%d')(d.fecha_parseada), reps: d.count }
+      })
+      .sort((a, b) => a.fecha - b.fecha)
+    masAntiguo.value = new Date(frecuencias[0]['fecha'])
+
+    let serie_anual = []
+    for (let d = new Date(masAntiguo.value); d <= hoyEs; d.setDate(d.getDate() + 1)) {
+      let prueba = frecuencias.find(
+        (n) => d3.timeFormat('%Y %m %d')(n.fecha) === d3.timeFormat('%Y %m %d')(d),
+      )
+      if (prueba) {
+        serie_anual.push(prueba)
+      } else {
+        serie_anual.push({ fecha: new Date(d), reps: 0 })
+      }
     }
+    dataAnual.value = d3.groups(serie_anual, (d) => d.fecha.getFullYear())
   }
-  dataAnual.value = d3.groups(serie_anual, (d) => d.fecha.getFullYear())
 }
 
 /**
@@ -280,12 +268,12 @@ const cerrarTooltip = function () {
   tooltip.value.style('visibility', 'hidden')
 }
 
-onMounted(() => {
+onMounted(async () => {
   contenedorSVG.value = document.querySelector('.contenedor-calendario')
   svg.value = d3.select('svg.svg-calendario')
   tooltip.value = d3.select('div.tooltip-calendario')
   tooltip.value.style('visibility', 'hidden')
-  prepararData()
+  await prepararData()
   agregarEstructura()
   calcularDimensiones()
   dibujarCalendario()
@@ -296,7 +284,7 @@ onUnmounted(() => {
 })
 </script>
 <template>
-  <div class="contenedor-calendario">
+  <div class="contenedor-calendario" fetchpriority="high">
     <div class="tooltip-calendario">
       El día <span>{{ selectedDate }}</span> se subieron <span>{{ selectedReps }}</span> bases de
       datos.

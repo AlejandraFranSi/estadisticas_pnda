@@ -111,7 +111,7 @@ onUnmounted(() => {
 <template>
   <div class="flex grafico-barras">
     <div class="columna-2 contenedor-titulo">{{ titulo }}</div>
-    <div ref="contenedorSVG" class="columna-14">
+    <div ref="contenedorSVG" class="columna-14" fetchpriority="high">
       <svg ref="svgBarras" :width="dimensiones.anchoGrafica" :height="dimensiones.altoContenedor">
         <g
           class="eje-x"

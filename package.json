@@ -15,7 +15,6 @@
   "dependencies": {
     "@sisdai.org/sisdai-estilos": "github:sisdai-org/sisdai-estilos",
     "d3": "^7.9.0",
-    "danfojs": "^1.2.0",
     "pinia": "^4.0.2",
     "vue": "^3.5.40"
   },

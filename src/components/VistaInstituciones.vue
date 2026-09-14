@@ -61,7 +61,7 @@ watch(institucionSeleccionada, async (nv) => {
         Ocurrió un error
       </div>
     </div>
-    <div class="tabla-totales-institucionales" v-if="!estaCargando">
+    <div class="tabla-totales-institucionales" fetchpriority="high" v-if="!estaCargando">
       <h4>El número de bases de datos publicadas por institución es:</h4>
       <table class="tabla-instituciones">
         <thead class="header-tabla">

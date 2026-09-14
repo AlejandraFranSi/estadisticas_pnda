@@ -1,6 +1,5 @@
 <script setup>
 import * as d3 from 'd3'
-import * as dfd from 'danfojs'
 import TarjetaNumeralia from './TarjetaNumeralia.vue'
 import GraficoCalendario from './graficas/GraficoCalendario.vue'
 import GraficoBarras from './graficas/GraficoBarras.vue'
@@ -42,34 +41,31 @@ const timeDomain = [
   '08/2026',
   '09/2026',
 ]
-// TODO: Mandar a construir el df a danfo
-const agruparXCategoria = function () {
-  const datum = recursos.value.map((d) => {
-    return {
-      categoria: d.nombre_categoria,
-      fecha: d3.timeFormat('%m/%Y')(new Date(d.creacion_recurso.slice(0, 23))),
-      reps: 1,
-    }
-  })
 
-  let df = new dfd.DataFrame(datum)
-  df = df.groupby(['categoria', 'fecha']).sum()
-  maximoXcategoria.value = df['reps_sum'].max()
-  dataAgrupada.value = d3.groups(dfd.toJSON(df), (d) => d.categoria)
-  dataAgrupada.value.forEach((d) => {
-    let entradasOrdenadas = []
-    for (let mes of timeDomain) {
-      let prueba = d[1].find((d) => d.fecha === mes)
-      if (!prueba) {
-        entradasOrdenadas.push({ categoria: d[0], fecha: mes, reps_sum: 0 })
-      } else {
-        entradasOrdenadas.push(prueba)
+const agruparXCategoria = async function () {
+  const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recursos_x_categoria`)
+  if (request.status === 200) {
+    const response = await request.json()
+    const dataFrame = JSON.parse(response.datum)
+    maximoXcategoria.value = response.max
+    dataAgrupada.value = d3.groups(dataFrame, (d) => d.categoria)
+    dataAgrupada.value.forEach((d) => {
+      let entradasOrdenadas = []
+      for (let mes of timeDomain) {
+        let prueba = d[1].find((d) => d.fecha === mes)
+        if (!prueba) {
+          entradasOrdenadas.push({ categoria: d[0], fecha: mes, reps_sum: 0 })
+        } else {
+          entradasOrdenadas.push(prueba)
+        }
       }
-    }
-    d[1] = entradasOrdenadas
-  })
+      d[1] = entradasOrdenadas
+    })
 
-  dataAgrupada.value = dataAgrupada.value.sort((a, b) => a[0].localeCompare(b[0]))
+    dataAgrupada.value = dataAgrupada.value.sort((a, b) => a[0].localeCompare(b[0]))
+  } else {
+    console.error('ocurrio un error')
+  }
 }
 /**
  * Hace una petición al backedn que construye un dataframe, agrupa información y
@@ -130,7 +126,7 @@ onMounted(async () => {
       <GraficoCalendario :data="recursos" />
 
       <h3>Publicacion por categoría</h3>
-      <div v-if="dataAgrupada && promedio">
+      <div v-if="dataAgrupada && promedio" fetchpriority="high">
         <GraficoBarras
           v-for="categoria in dataAgrupada"
           :key="categoria[0]"

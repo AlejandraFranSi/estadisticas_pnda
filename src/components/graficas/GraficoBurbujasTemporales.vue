@@ -277,6 +277,7 @@ watch(institucionSeleccionada, async (nv) => {
         <span>Fecha de Publicación</span>: {{ recursoHovereado.fecha }}
       </div>
       <svg
+        fetchpriority="high"
         class="svg-linea-temporal"
         :width="dimensiones.anchoGrafica"
         :height="dimensiones.altoGrafica"
