@@ -24,6 +24,7 @@ export const useDataStore = defineStore('data', () => {
   const armarData = async function () {
     try {
       const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/resources`)
+      console.log('Acabamos de pedir toda la información de conjuntos', request)
       const response = await request.json()
       dataConjuntos.value = response.conjuntos
       dataRecursos.value = response.recursos
