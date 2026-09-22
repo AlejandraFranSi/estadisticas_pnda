@@ -8,6 +8,12 @@ const dataStore = useDataStore()
     <h3><IconoEstadisticas /> Estadísticas PNDA</h3>
     <div class="secciones flex">
       <button
+        :class="dataStore.seccion === 'ptr' ? 'selected' : 'no-selected'"
+        @click="dataStore.actualizarSeccion('ptr')"
+      >
+        PTR
+      </button>
+      <button
         :class="dataStore.seccion === 'nosotros' ? 'selected' : 'no-selected'"
         @click="dataStore.actualizarSeccion('nosotros')"
       >

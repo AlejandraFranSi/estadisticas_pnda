@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import * as d3 from 'd3'
 
 const props = defineProps({
@@ -67,6 +67,7 @@ const calcularDimensiones = function () {
     .attr('font-size', '6px')
   ejeY.value.call(d3.axisLeft(escalaY.value)).selectAll('text').attr('font-size', '6px')
 
+  console.log(props.data)
   // Add a rect for each bar.
   grupoBarras.value
     .selectAll('rect')
