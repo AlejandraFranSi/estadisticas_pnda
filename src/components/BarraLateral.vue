@@ -1,5 +1,5 @@
 <script setup>
-import { watch, computed } from 'vue'
+import { computed } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 
 const dataStore = useDataStore()
@@ -19,20 +19,12 @@ const fechaFinal = computed({
     dataStore.fechaFinal = nv
   },
 })
-
-watch(fechaFinal, (nv) => {
-  console.log('La nueva fecha final: ', nv)
-})
-watch(fechaInicio, () => {
-  console.log('La nueva fecha inicial: ', dataStore.fechaInicio)
-})
 </script>
 <template>
   <div class="p-1">
     <h4>Selecciona el intervalo temporal de interés</h4>
     <div class="p-2">
-      Desde:
-      <label for="start">Start date:</label>
+      <label for="start">Fecha de inicio:</label>
       <input
         type="date"
         id="start"
@@ -43,9 +35,7 @@ watch(fechaInicio, () => {
       />
     </div>
     <div class="p-2">
-      Hasta:
-      <label for="end">Start date:</label>
-
+      <label for="end">Fecha de cierre:</label>
       <input
         type="date"
         id="end"
