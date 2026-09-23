@@ -8,5 +8,8 @@ import InformacionDiaria from './secciones/InformacionDiaria.vue'
     <ObjetivosAnuales />
     <HistoricoTrimestral />
     <InformacionDiaria />
+    <div>
+      <h4>Relación entre publicación de recursos e interacciones con instituciones</h4>
+    </div>
   </div>
 </template>

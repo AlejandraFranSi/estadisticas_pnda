@@ -25,6 +25,11 @@ const dataStore = useDataStore()
 </template>
 
 <style>
+/*#3B364A*/
+
+:root {
+  --color-neutro-7: #47454e;
+}
 body {
   background-color: var(--color-neutro-1);
 }
@@ -46,5 +51,10 @@ body {
   left: 20vw;
   top: 80px;
   overflow-y: scroll;
+}
+h4 {
+  font-size: 28px;
+  font-weight: bold;
+  color: var(--color-neutro-7);
 }
 </style>

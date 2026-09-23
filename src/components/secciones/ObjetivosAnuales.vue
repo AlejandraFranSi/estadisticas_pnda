@@ -1,5 +1,6 @@
 <script setup>
 import GraficoDona from '../graficas/GraficoDona.vue'
+import IconoError from '../icons/IconoError.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 
@@ -25,8 +26,20 @@ onMounted(async () => {
 <template>
   <div>
     <h4>Objetivos anuales</h4>
-    <div v-if="estaCargando">...Cargando</div>
-    <div v-if="!estaCargando && error !== null">Ocurrió un error {{ error }}</div>
+    <div class="flex flex-contenido-centrado" id="spinner-01">
+      <div v-if="estaCargando" id="spinner flex-vertical-centrado">
+        <img src="/loading.gif" />
+        <p>Solictando datos</p>
+      </div>
+      <div
+        v-if="!estaCargando && error !== null"
+        id="error-01"
+        class="p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
+      >
+        <IconoError />
+        {error}
+      </div>
+    </div>
     <div v-if="!estaCargando && totalRecursos" class="flex">
       <GraficoDona
         class="columna-4"

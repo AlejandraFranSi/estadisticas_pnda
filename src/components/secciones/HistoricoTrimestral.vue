@@ -1,28 +1,30 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { useDataStore } from '@/stores/data.js'
 import BarrasReutilizables from '../graficas/BarrasReutilizables.vue'
+import IconoError from '../icons/IconoError.vue'
+import { ref, onMounted } from 'vue'
+//import { useDataStore } from '@/stores/data.js'
 const isLoading = ref(true)
 const wasFetchigSuccesful = ref(null)
 const dataInteracciones = ref(null)
 const dataRecursos = ref(null)
 
-const dataStore = useDataStore()
-const fechaInicio = computed(() => dataStore.fechaInicio)
-const fechaFinal = computed(() => dataStore.fechaFinal)
+// const dataStore = useDataStore()
+//const fechaInicio = computed(() => dataStore.fechaInicio)
+//const fechaFinal = computed(() => dataStore.fechaFinal)
 
 async function solicitarDatos() {
   isLoading.value = true
   wasFetchigSuccesful.value = null
   try {
+    // `${import.meta.env.VITE_BACKEND_URL}/api/correos_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`
     const requestInteracciones = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/correos_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/correos_trimestrales`,
     )
     const responseInteracciones = await requestInteracciones.json()
     dataInteracciones.value = JSON.parse(responseInteracciones.interacciones)
 
     const requestRecursos = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/bases_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/bases_trimestrales`,
     )
     const responseRecursos = await requestRecursos.json()
     dataRecursos.value = JSON.parse(responseRecursos.recursos)
@@ -34,9 +36,9 @@ async function solicitarDatos() {
   isLoading.value = false
 }
 
-watch([fechaInicio, fechaFinal], async () => {
+/*watch([fechaInicio, fechaFinal], async () => {
   await solicitarDatos()
-})
+})*/
 
 onMounted(async () => {
   await solicitarDatos()
@@ -45,12 +47,23 @@ onMounted(async () => {
 <template>
   <div>
     <h4>Histórico trimestral</h4>
-    <div v-if="isLoading">...Está cargando</div>
-    <div v-if="!isLoading && wasFetchigSuccesful === false">
-      No se pudo recuperar la información
+    <div class="flex flex-contenido-centrado" id="spinner-01">
+      <div v-if="isLoading" id="spinner flex-vertical-centrado">
+        <img src="/loading.gif" />
+        <p>Solictando datos</p>
+      </div>
+      <div
+        v-if="wasFetchigSuccesful === false && !isLoading"
+        id="error-01"
+        class="p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
+      >
+        <IconoError />
+        Ocurrió un error
+      </div>
     </div>
-    <div v-if="!isLoading && wasFetchigSuccesful">
+    <div v-if="!isLoading && wasFetchigSuccesful" class="flex">
       <BarrasReutilizables
+        class="columna-8"
         :data="dataInteracciones"
         :titulo="'Interacciones con instituciones'"
         :x-axis-title="'Trimestre'"
@@ -60,6 +73,7 @@ onMounted(async () => {
         :alto="300"
       />
       <BarrasReutilizables
+        class="columna-8"
         :data="dataRecursos"
         :titulo="'Recursos subidos'"
         :x-axis-title="'Trimestre'"

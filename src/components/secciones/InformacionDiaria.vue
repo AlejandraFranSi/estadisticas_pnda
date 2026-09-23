@@ -1,7 +1,9 @@
 <script setup>
+import * as d3 from 'd3'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 import AreasApiladas from '../graficas/AreasApiladas.vue'
+import TarjetaNumeralia from '../TarjetaNumeralia.vue'
 import IconoError from '../icons/IconoError.vue'
 
 const isLoading = ref(true)
@@ -12,9 +14,15 @@ const fechaFinal = computed(() => dataStore.fechaFinal)
 const datosRecursos = ref(null)
 const categoriasRecursos = ref(null)
 const maximoRecursos = ref(null)
+const promedioRecursos = ref(null)
+const varianzaRecursos = ref(null)
+const desviacionRecursos = ref(null)
 const datosInteracciones = ref(null)
 const categoriasInteracciones = ref(null)
 const maximoInteracciones = ref(null)
+const promedioInteracciones = ref(null)
+const varianzaInteracciones = ref(null)
+const desviacionInteracciones = ref(null)
 
 async function solicitarDatos() {
   isLoading.value = true
@@ -27,6 +35,9 @@ async function solicitarDatos() {
     datosRecursos.value = JSON.parse(responseRecursos.data)
     categoriasRecursos.value = [...responseRecursos.top_categorias, 'Otra']
     maximoRecursos.value = responseRecursos.maximo
+    promedioRecursos.value = d3.format('.2f')(responseRecursos.promedio)
+    desviacionRecursos.value = d3.format('.2f')(responseRecursos.desviacion)
+    varianzaRecursos.value = d3.format('.2f')(responseRecursos.varianza)
 
     const requestInteracciones = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/api/motivo_interacciones_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
@@ -35,6 +46,9 @@ async function solicitarDatos() {
     datosInteracciones.value = JSON.parse(responseInteracciones.data)
     categoriasInteracciones.value = [...responseInteracciones.tipo_interacciones]
     maximoInteracciones.value = responseInteracciones.maximo
+    promedioInteracciones.value = d3.format('.2f')(responseInteracciones.promedio)
+    desviacionInteracciones.value = d3.format('.2f')(responseInteracciones.desviacion)
+    varianzaInteracciones.value = d3.format('.2f')(responseInteracciones.varianza)
 
     wasFetchigSuccesful.value = true
   } catch (error) {
@@ -68,27 +82,47 @@ watch([fechaInicio, fechaFinal], async () => {
       </div>
     </div>
     <div v-if="wasFetchigSuccesful && !isLoading">
-      <AreasApiladas
-        :etiqueta="'recursos'"
-        :titulo="'Información diaria de recursos'"
-        :data="datosRecursos"
-        :categorias="categoriasRecursos"
-        :x-var="'fecha'"
-        :y-max="maximoRecursos"
-        :leyenda-x="'Fecha'"
-        :leyenda-y="'Bases subidas'"
-      />
-      <AreasApiladas
-        :etiqueta="'interacciones'"
-        :titulo="'Información diaria de interacciones'"
-        :data="datosInteracciones"
-        :categorias="categoriasInteracciones"
-        :x-var="'fecha_evento'"
-        :y-max="maximoInteracciones"
-        :leyenda-x="'Fecha'"
-        :leyenda-y="'Interacciones tenidas'"
-      />
+      <div class="flex">
+        <div class="contenedor-numeralias">
+          <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioRecursos" />
+          <TarjetaNumeralia :titulo="'Varianza'" :valor="varianzaRecursos" />
+          <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacionRecursos" />
+        </div>
+        <AreasApiladas
+          class="columna-12"
+          :etiqueta="'recursos'"
+          :titulo="'Recursos subidos por día'"
+          :data="datosRecursos"
+          :categorias="categoriasRecursos"
+          :x-var="'fecha'"
+          :y-max="maximoRecursos"
+          :leyenda-x="'Fecha'"
+          :leyenda-y="'Bases subidas'"
+        />
+      </div>
+      <div class="flex">
+        <AreasApiladas
+          class="columna-12"
+          :etiqueta="'interacciones'"
+          :titulo="'Información diaria de interacciones'"
+          :data="datosInteracciones"
+          :categorias="categoriasInteracciones"
+          :x-var="'fecha_evento'"
+          :y-max="maximoInteracciones"
+          :leyenda-x="'Fecha'"
+          :leyenda-y="'Interacciones tenidas'"
+        />
+        <div class="contenedor-numeralias">
+          <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioInteracciones" />
+          <TarjetaNumeralia :titulo="'Varianza'" :valor="varianzaInteracciones" />
+          <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacionInteracciones" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+.contenedor-grafico {
+  background-color: red;
+}
+</style>

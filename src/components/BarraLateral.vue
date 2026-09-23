@@ -23,6 +23,7 @@ const fechaFinal = computed({
 <template>
   <div class="p-1">
     <h4>Selecciona el intervalo temporal de interés</h4>
+    <p>Estos controles no modifican las secciones de Objetivos Anuales ni Histórico Trimestral</p>
     <div class="p-2">
       <label for="start">Fecha de inicio:</label>
       <input
