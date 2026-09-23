@@ -26,7 +26,6 @@ async function solicitarDatos() {
     )
     const responseRecursos = await requestRecursos.json()
     dataRecursos.value = JSON.parse(responseRecursos.recursos)
-    console.log(dataRecursos.value)
     wasFetchigSuccesful.value = true
   } catch (error) {
     console.log(error)
@@ -55,19 +54,19 @@ onMounted(async () => {
         :data="dataInteracciones"
         :titulo="'Interacciones con instituciones'"
         :x-axis-title="'Trimestre'"
-        :-y-axis-title="'No. Interacciones'"
+        :y-axis-title="'No. Interacciones'"
         :x-var-name="'trimestre'"
         :y-var-name="'interacciones'"
-        :alto="200"
+        :alto="300"
       />
       <BarrasReutilizables
         :data="dataRecursos"
         :titulo="'Recursos subidos'"
         :x-axis-title="'Trimestre'"
-        :-y-axis-title="'No. Recursos'"
+        :y-axis-title="'No. Recursos'"
         :x-var-name="'trimestre'"
         :y-var-name="'recursos'"
-        :alto="200"
+        :alto="300"
       />
     </div>
   </div>

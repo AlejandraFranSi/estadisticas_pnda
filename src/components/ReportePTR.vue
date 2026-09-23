@@ -1,10 +1,12 @@
 <script setup>
-import HistoricoTrimestral from './secciones/HistoricoTrimestral.vue'
 import ObjetivosAnuales from './secciones/ObjetivosAnuales.vue'
+import HistoricoTrimestral from './secciones/HistoricoTrimestral.vue'
+import InformacionDiaria from './secciones/InformacionDiaria.vue'
 </script>
 <template>
   <div class="p-3">
     <ObjetivosAnuales />
     <HistoricoTrimestral />
+    <InformacionDiaria />
   </div>
 </template>

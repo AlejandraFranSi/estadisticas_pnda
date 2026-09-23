@@ -72,7 +72,6 @@ function calcularRangoTemporal() {
   const temporalidadPlan = fechasParseadas.value.map((d) => new Date(d.fecha_formateada))
   const temporalidades = [...temporalidadRecursos, ...temporalidadPlan].sort((a, b) => a - b)
   intervaloTemporal.value = [temporalidades[0], temporalidades[temporalidades.length - 1]]
-  console.log(intervaloTemporal.value)
 }
 /**
  * Calcula las dimensiones del gráfico a partir del ancho de la pantalla

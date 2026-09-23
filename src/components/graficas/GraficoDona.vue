@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import * as d3 from 'd3'
 
 const props = defineProps({
@@ -34,7 +34,7 @@ const margenes = ref({
   derecha: 10,
   izquierda: 10,
   arriba: 10,
-  abajo: 10,
+  abajo: 0,
 })
 
 const contenedorSVG = ref()
@@ -107,6 +107,10 @@ function dibujarDona() {
     .attr('d', arco.value)
 }
 
+function reescalar() {
+  obtenerDimensiones()
+  dibujarDona()
+}
 onMounted(() => {
   contenedorSVG.value = document.getElementById(`contenedor-dona-${props.etiqueta}`)
   svg.value = d3.select(`svg#svg-dona-${props.etiqueta}`)
@@ -116,6 +120,10 @@ onMounted(() => {
   constuirDataArray()
   obtenerDimensiones()
   dibujarDona()
+  window.addEventListener('resize', reescalar)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', reescalar)
 })
 </script>
 <template>
@@ -143,7 +151,7 @@ onMounted(() => {
         <text>{{ props.estatus }} / {{ props.objetivo }}</text>
       </g>
     </svg>
-    <p>{{ props.titulo }}</p>
+    <p class="m-0">{{ props.titulo }}</p>
   </div>
 </template>
 <style scoped>

@@ -28,6 +28,9 @@ const ejeY = ref()
 const escalaX = ref()
 const escalaY = ref()
 const grupoBarras = ref()
+const textoX = ref(null)
+const textoY = ref(null)
+const textoTitulo = ref(null)
 const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR}`
 const dimensiones = ref({
   altoContenedor: 70,
@@ -63,12 +66,9 @@ const calcularDimensiones = function () {
     .call(d3.axisBottom(escalaX.value))
     .selectAll('text')
     .attr('text-anchor', 'center')
-    //.attr('transform', 'rotate(13)')
     .attr('font-size', '6px')
   ejeY.value.call(d3.axisLeft(escalaY.value)).selectAll('text').attr('font-size', '6px')
 
-  console.log(props.data)
-  // Add a rect for each bar.
   grupoBarras.value
     .selectAll('rect')
     .data(props.data[1])
@@ -95,12 +95,15 @@ const calcularDimensiones = function () {
       },
     )
 }
+
 onMounted(() => {
   svg.value = d3.select(svgBarras.value)
   grupoBarras.value = svg.value.select('g.grupo-barras')
   ejeX.value = svg.value.select('g.eje-x')
   ejeY.value = svg.value.select('g.eje-y')
-
+  textoTitulo.value = svg.value.append('text').attr('text-anchor', 'end')
+  textoX.value = svg.value.append('text').attr('text-anchor', 'end')
+  textoY.value = svg.value.append('text').attr('text-anchor', 'end')
   calcularDimensiones()
   window.addEventListener('resize', calcularDimensiones)
 })
