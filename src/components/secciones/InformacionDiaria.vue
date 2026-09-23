@@ -6,11 +6,11 @@ import AreasApiladas from '../graficas/AreasApiladas.vue'
 import TarjetaNumeralia from '../TarjetaNumeralia.vue'
 import IconoError from '../icons/IconoError.vue'
 
-const isLoading = ref(true)
-const wasFetchigSuccesful = ref(null)
 const dataStore = useDataStore()
 const fechaInicio = computed(() => dataStore.fechaInicio)
 const fechaFinal = computed(() => dataStore.fechaFinal)
+const isLoading = ref(true)
+const wasFetchigSuccesful = ref(null)
 const datosRecursos = ref(null)
 const categoriasRecursos = ref(null)
 const maximoRecursos = ref(null)
