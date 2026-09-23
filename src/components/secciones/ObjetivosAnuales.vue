@@ -29,7 +29,7 @@ onMounted(async () => {
     <div v-if="!estaCargando && error !== null">Ocurrió un error {{ error }}</div>
     <div v-if="!estaCargando && totalRecursos" class="flex">
       <GraficoDona
-        class="columna-7"
+        class="columna-4"
         :titulo="'Bases de datos publicadas'"
         :estatus="totalRecursos"
         :objetivo="objetivoRecursos"
@@ -37,12 +37,36 @@ onMounted(async () => {
         :etiqueta="'recursos'"
       />
       <GraficoDona
-        class="columna-7"
+        class="columna-3"
         :titulo="'Instituciones con publicaciones'"
         :estatus="totalInstituciones"
         :objetivo="objetivoInstituciones"
         :ancho="170"
         :etiqueta="'instituciones'"
+      />
+      <GraficoDona
+        class="columna-3"
+        :titulo="'Datálogo: Segunda versión de bases'"
+        :estatus="40"
+        :objetivo="100"
+        :ancho="170"
+        :etiqueta="'bases_datalogo'"
+      />
+      <GraficoDona
+        class="columna-3"
+        :titulo="'Estrategia Nacional de Datos Abiertos'"
+        :estatus="60"
+        :objetivo="100"
+        :ancho="170"
+        :etiqueta="'estrategia'"
+      />
+      <GraficoDona
+        class="columna-3"
+        :titulo="'Manual Operativo'"
+        :estatus="90"
+        :objetivo="100"
+        :ancho="170"
+        :etiqueta="'manual'"
       />
     </div>
   </div>
