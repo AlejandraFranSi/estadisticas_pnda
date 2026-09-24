@@ -109,4 +109,9 @@ watch([fechaInicio, fechaFinal], async () => {
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+thead {
+  background-color: var(--color-secundario-8);
+  color: var(--color-neutro-0);
+}
+</style>

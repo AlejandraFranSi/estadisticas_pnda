@@ -11,15 +11,15 @@ const props = defineProps({
 })
 </script>
 <template>
-  <div class="numerico tarjeta p-x-3 p-y-1 m-1">
+  <div class="p-x-3 p-y-1 m-1">
     {{ props.titulo }}:
     <span>{{ props.valor }}</span>
   </div>
 </template>
 <style scoped>
 div {
-  max-height: 64px;
-  max-width: 160px;
+  width: 100%;
+  border-radius: 16px;
   background-color: var(--color-secundario-3);
 }
 span {
@@ -27,5 +27,6 @@ span {
   color: var(--color-neutro-0);
   padding: 0px 8px;
   border-radius: 8px;
+  width: 100%;
 }
 </style>

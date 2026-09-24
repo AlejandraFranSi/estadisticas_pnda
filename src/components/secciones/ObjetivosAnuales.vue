@@ -48,6 +48,7 @@ onMounted(async () => {
         :objetivo="objetivoRecursos"
         :ancho="170"
         :etiqueta="'recursos'"
+        :editable="false"
       />
       <GraficoDona
         class="columna-3"
@@ -56,6 +57,7 @@ onMounted(async () => {
         :objetivo="objetivoInstituciones"
         :ancho="170"
         :etiqueta="'instituciones'"
+        :editable="false"
       />
       <GraficoDona
         class="columna-3"
@@ -64,6 +66,7 @@ onMounted(async () => {
         :objetivo="100"
         :ancho="170"
         :etiqueta="'bases_datalogo'"
+        :editable="true"
       />
       <GraficoDona
         class="columna-3"
@@ -72,6 +75,7 @@ onMounted(async () => {
         :objetivo="100"
         :ancho="170"
         :etiqueta="'estrategia'"
+        :editable="true"
       />
       <GraficoDona
         class="columna-3"
@@ -80,6 +84,7 @@ onMounted(async () => {
         :objetivo="100"
         :ancho="170"
         :etiqueta="'manual'"
+        :editable="true"
       />
     </div>
   </div>

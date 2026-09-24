@@ -44,6 +44,8 @@ const margenes = ref({
   arriba: 25,
   abajo: 35,
 })
+
+const tooltip = ref()
 const contenedorSVG = ref(null)
 const svgBarras = ref(null)
 const svg = ref(null)
@@ -56,6 +58,7 @@ const textoX = ref(null)
 const textoY = ref(null)
 const textoTitulo = ref(null)
 const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR}`
+const noInteracciones = ref(null)
 
 function graficarBarras() {
   dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth
@@ -122,6 +125,9 @@ function graficarBarras() {
           .attr('height', (d) => escalaY.value(0) - escalaY.value(d[props.yVarName]))
           .attr('width', escalaX.value.bandwidth())
           .attr('fill', colorPrimario)
+          .on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)
       },
       (update) => {
         update
@@ -130,12 +136,32 @@ function graficarBarras() {
           .attr('height', (d) => escalaY.value(0) - escalaY.value(d[props.yVarName]))
           .attr('width', escalaX.value.bandwidth())
           .attr('fill', colorPrimario)
+          .on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)
       },
       (exit) => {
         exit.remove()
       },
     )
 }
+
+const abrirTooltip = function (_event, target) {
+  noInteracciones.value = target.interacciones
+  tooltip.value.style('visibility', 'visible').selectAll('text')
+}
+
+const ajustarPosicionTooltip = function (event) {
+  const pointer = d3.pointer(event, document.body)
+  const xPosition = pointer[0]
+  const yPosition = pointer[1]
+  tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
+}
+
+const cerrarTooltip = function () {
+  tooltip.value.style('visibility', 'hidden')
+}
+
 onMounted(() => {
   svg.value = d3.select(svgBarras.value)
   grupoBarras.value = svg.value.select('g.grupo-barras')
@@ -144,6 +170,8 @@ onMounted(() => {
   textoTitulo.value = svg.value.append('text').attr('text-anchor', 'end')
   textoX.value = svg.value.append('text').attr('text-anchor', 'end')
   textoY.value = svg.value.append('text').attr('text-anchor', 'end')
+  tooltip.value = d3.select(`div.tooltip-barras-${props.yVarName}`)
+  tooltip.value.style('visibility', 'hidden')
   graficarBarras()
   window.addEventListener('resize', graficarBarras)
 })
@@ -154,6 +182,9 @@ onUnmounted(() => {
 <template>
   <div>
     <div ref="contenedorSVG">
+      <div :class="`tooltip-barras-${props.yVarName} tooltip`" data-html2canvas-ignore>
+        <span>{{ noInteracciones }}</span>
+      </div>
       <svg ref="svgBarras" :width="dimensiones.anchoGrafica" :height="dimensiones.altoContenedor">
         <g
           class="eje-x"
@@ -168,4 +199,19 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  background-color: #252323;
+  color: white;
+  opacity: 0.93;
+  height: auto;
+  width: 180px;
+  font-size: 14px;
+  padding: 5px;
+}
+span {
+  font-weight: bold;
+}
+</style>

@@ -60,7 +60,7 @@ const escalaY = ref(null)
 const textoTitulo = ref(null)
 const textoX = ref(null)
 const textoY = ref(null)
-const radio = 5
+const radio = 8
 const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR}`
 const institucion = ref('sin selección')
 const recursosInst = ref(0)
@@ -188,7 +188,7 @@ onUnmounted(() => {
 </script>
 <template>
   <div id="contenedor-dispersion">
-    <div class="tooltip-dispersion">
+    <div class="tooltip-dispersion" data-html2canvas-ignore>
       Institución: <span>{{ institucion }}</span> <br />
       Recursos: <span>{{ recursosInst }}</span> <br />
       Interacciones: <span>{{ interaccionesInst }}</span>

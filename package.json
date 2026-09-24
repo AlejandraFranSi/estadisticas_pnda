@@ -13,12 +13,13 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@centrogeomx/sisdai-componentes": "^4.14.1",
     "@sisdai.org/sisdai-estilos": "github:sisdai-org/sisdai-estilos",
     "d3": "^7.9.0",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
-    "pinia": "^4.0.2",
+    "pinia": "^3.0.4",
     "vue": "^3.5.40"
   },
   "devDependencies": {

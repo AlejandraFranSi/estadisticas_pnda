@@ -1,4 +1,5 @@
 <script setup>
+import IconoEditar from '../icons/IconoEditar.vue'
 import { onMounted, onUnmounted, ref } from 'vue'
 import * as d3 from 'd3'
 
@@ -22,6 +23,10 @@ const props = defineProps({
   etiqueta: {
     default: 'sin-titulo',
     type: String,
+  },
+  editable: {
+    default: true,
+    type: Boolean,
   },
 })
 const dimensiones = ref({
@@ -49,14 +54,16 @@ const datosGraficados = ref(null)
 const porcentaje = ref(null)
 const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR_2}`
 const colorSecundario = `${import.meta.env.VITE_SECONDARY_COLOR_2}`
+const sisdaiModal = ref(null)
+const campoEdicion = ref(String(props.estatus))
 
-function constuirDataArray() {
+function constuirDataArray(estadoActual) {
   datosGraficados.value = [
-    { name: 'total', value: props.objetivo - props.estatus },
+    { name: 'total', value: props.objetivo - Number(estadoActual) },
     { name: 'estatus', value: props.estatus },
   ]
 
-  porcentaje.value = d3.format('.2f')((props.estatus / props.objetivo) * 100)
+  porcentaje.value = d3.format('.2f')((estadoActual / props.objetivo) * 100)
 }
 
 function obtenerDimensiones() {
@@ -111,13 +118,23 @@ function reescalar() {
   obtenerDimensiones()
   dibujarDona()
 }
+
+function editarEstado() {
+  console.log('Se va a editar el estado')
+  sisdaiModal.value?.abrirModal()
+}
+function confirmar() {
+  constuirDataArray(campoEdicion.value)
+  reescalar()
+  sisdaiModal.value?.cerrarModal()
+}
 onMounted(() => {
   contenedorSVG.value = document.getElementById(`contenedor-dona-${props.etiqueta}`)
   svg.value = d3.select(`svg#svg-dona-${props.etiqueta}`)
   grupo_dona.value = svg.value.select('g.grupo-dona')
   grupo_porcentaje.value = svg.value.select('g.grupo-porcentaje')
   grupo_valores.value = svg.value.select('g.grupo-valores-reales')
-  constuirDataArray()
+  constuirDataArray(props.estatus)
   obtenerDimensiones()
   dibujarDona()
   window.addEventListener('resize', reescalar)
@@ -128,6 +145,15 @@ onUnmounted(() => {
 </script>
 <template>
   <div class="contenedor-dona" :id="`contenedor-dona-${props.etiqueta}`">
+    <button
+      class="boton-editar"
+      @click="editarEstado"
+      :disabled="!editable"
+      data-html2canvas-ignore
+    >
+      <IconoEditar :style="{ opacity: props.editable ? '1' : '0.3' }" />
+    </button>
+
     <svg
       :id="`svg-dona-${props.etiqueta}`"
       class="svg-dona"
@@ -148,15 +174,41 @@ onUnmounted(() => {
         class="grupo-valores-reales"
         :transform="`translate(${dimensiones.anchoGrafica / 2},${dimensiones.altoGrafica / 2 + 20})`"
       >
-        <text>{{ props.estatus }} / {{ props.objetivo }}</text>
+        <text>{{ campoEdicion }} / {{ props.objetivo }}</text>
       </g>
     </svg>
     <p class="m-0">{{ props.titulo }}</p>
+    <SisdaiModal ref="sisdaiModal" data-html2canvas-ignore>
+      <template #encabezado><h5>Edición de valores</h5></template>
+      <template #cuerpo
+        ><div>
+          <SisdaiCampoBase
+            :etiqueta="`Ingresa el nuevo valor para el objetivo ${props.title}`"
+            :es_obligatorio="false"
+            :es_etiqueta_visible="true"
+            v-model="campoEdicion"
+            texto_ayuda="El nuevo número entero a partir del cual se obtendrá el porcentaje"
+          /></div
+      ></template>
+      <template #pie>
+        <div class="flex flex-contenido-centrado">
+          <button class="boton-primario" @click="confirmar">Confirmar</button>
+          <button @click="sisdaiModal?.cerrarModal">Cancelar</button>
+        </div>
+      </template>
+    </SisdaiModal>
   </div>
 </template>
 <style scoped>
 p {
   font-weight: bold;
   text-align: center;
+}
+
+.boton-editar {
+  position: relative;
+  top: 0x;
+  left: 70%;
+  padding: 8px;
 }
 </style>

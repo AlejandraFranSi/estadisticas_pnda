@@ -83,36 +83,38 @@ watch([fechaInicio, fechaFinal], async () => {
     </div>
     <div v-if="wasFetchigSuccesful && !isLoading" id="contenedor-graficas-diarias">
       <div class="flex">
-        <div class="contenedor-numeralias">
+        <div class="contenedor-numeralias columna-3">
           <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioRecursos" />
           <TarjetaNumeralia :titulo="'Varianza'" :valor="varianzaRecursos" />
           <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacionRecursos" />
         </div>
-        <AreasApiladas
-          class="columna-12"
-          :etiqueta="'recursos'"
-          :titulo="'Recursos subidos por día'"
-          :data="datosRecursos"
-          :categorias="categoriasRecursos"
-          :x-var="'fecha'"
-          :y-max="maximoRecursos"
-          :leyenda-x="'Fecha'"
-          :leyenda-y="'Bases subidas'"
-        />
+        <div class="areas-apiladas columna-13">
+          <AreasApiladas
+            :etiqueta="'recursos'"
+            :titulo="'Recursos subidos por día'"
+            :data="datosRecursos"
+            :categorias="categoriasRecursos"
+            :x-var="'fecha'"
+            :y-max="maximoRecursos"
+            :leyenda-x="'Fecha'"
+            :leyenda-y="'Bases subidas'"
+          />
+        </div>
       </div>
       <div class="flex">
-        <AreasApiladas
-          class="columna-12"
-          :etiqueta="'interacciones'"
-          :titulo="'Información diaria de interacciones'"
-          :data="datosInteracciones"
-          :categorias="categoriasInteracciones"
-          :x-var="'fecha_evento'"
-          :y-max="maximoInteracciones"
-          :leyenda-x="'Fecha'"
-          :leyenda-y="'Interacciones tenidas'"
-        />
-        <div class="contenedor-numeralias">
+        <div class="areas-apiladas columna-13">
+          <AreasApiladas
+            :etiqueta="'interacciones'"
+            :titulo="'Información diaria de interacciones'"
+            :data="datosInteracciones"
+            :categorias="categoriasInteracciones"
+            :x-var="'fecha_evento'"
+            :y-max="maximoInteracciones"
+            :leyenda-x="'Fecha'"
+            :leyenda-y="'Interacciones tenidas'"
+          />
+        </div>
+        <div class="contenedor-numeralias columna-3">
           <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioInteracciones" />
           <TarjetaNumeralia :titulo="'Varianza'" :valor="varianzaInteracciones" />
           <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacionInteracciones" />
@@ -122,7 +124,13 @@ watch([fechaInicio, fechaFinal], async () => {
   </div>
 </template>
 <style scoped>
-.contenedor-grafico {
-  background-color: red;
+@media (max-width: 900px) {
+  .areas-apiladas {
+    max-width: 100%!;
+  }
+  .contenedor-numeralias {
+    max-width: 100%;
+    display: flex;
+  }
 }
 </style>
