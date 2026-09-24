@@ -38,7 +38,7 @@ const props = defineProps({
 })
 
 const dimensiones = ref({
-  altoContenedor: 300,
+  altoContenedor: 500,
   altoGrafica: 0,
   anchoContenedor: 0,
   anchoGrafica: 0,
@@ -49,6 +49,7 @@ const margenes = ref({
   arriba: 25,
   abajo: 35,
 })
+const tooltip = ref()
 const contenedorSVG = ref(null)
 const svgBurbujas = ref(null)
 const grupoBurbujas = ref(null)
@@ -61,6 +62,9 @@ const textoX = ref(null)
 const textoY = ref(null)
 const radio = 5
 const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR}`
+const institucion = ref('sin selección')
+const recursosInst = ref(0)
+const interaccionesInst = ref(0)
 
 function dimensionarGrafica() {
   dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth
@@ -120,6 +124,9 @@ function dibujarGrafica() {
           .attr('cy', (d) => escalaY.value(d[props.yVarName]))
           .attr('r', radio)
           .attr('fill', colorPrimario)
+          .on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)
       },
       (update) => {
         update
@@ -127,6 +134,9 @@ function dibujarGrafica() {
           .attr('cy', (d) => escalaY.value(d[props.yVarName]))
           .attr('r', radio)
           .attr('fill', colorPrimario)
+          .on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)
       },
       (exit) => {
         exit.remove()
@@ -139,6 +149,23 @@ const redimensionar = function () {
   dibujarGrafica()
 }
 
+const abrirTooltip = function (_event, target) {
+  institucion.value = target.nombre_institucion
+  recursosInst.value = target.num_recursos
+  interaccionesInst.value = target.num_interacciones
+  tooltip.value.style('visibility', 'visible').selectAll('text')
+}
+
+const ajustarPosicionTooltip = function (event) {
+  const pointer = d3.pointer(event, document.body)
+  const xPosition = pointer[0]
+  const yPosition = pointer[1]
+  tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
+}
+
+const cerrarTooltip = function () {
+  tooltip.value.style('visibility', 'hidden')
+}
 onMounted(() => {
   contenedorSVG.value = document.getElementById(`contenedor-dispersion`)
   svgBurbujas.value = d3.select(`svg#svg-dispersion`)
@@ -148,6 +175,8 @@ onMounted(() => {
   textoTitulo.value = svgBurbujas.value.append('text').attr('text-anchor', 'center')
   textoX.value = svgBurbujas.value.append('text').attr('text-anchor', 'center')
   textoY.value = svgBurbujas.value.append('text').attr('text-anchor', 'center')
+  tooltip.value = d3.select('div.tooltip-dispersion')
+  tooltip.value.style('visibility', 'hidden')
   dimensionarGrafica()
   dibujarGrafica()
   window.addEventListener('resize', redimensionar)
@@ -159,6 +188,11 @@ onUnmounted(() => {
 </script>
 <template>
   <div id="contenedor-dispersion">
+    <div class="tooltip-dispersion">
+      Institución: <span>{{ institucion }}</span> <br />
+      Recursos: <span>{{ recursosInst }}</span> <br />
+      Interacciones: <span>{{ interaccionesInst }}</span>
+    </div>
     <svg id="svg-dispersion" :width="dimensiones.anchoGrafica" :height="dimensiones.altoContenedor">
       <g
         class="eje-x"
@@ -172,4 +206,19 @@ onUnmounted(() => {
     </svg>
   </div>
 </template>
-<style></style>
+<style scoped>
+.tooltip-dispersion {
+  position: absolute;
+  z-index: 2;
+  background-color: #252323;
+  color: white;
+  opacity: 0.93;
+  height: auto;
+  width: 180px;
+  font-size: 14px;
+  padding: 5px;
+}
+span {
+  font-weight: bold;
+}
+</style>

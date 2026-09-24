@@ -61,7 +61,7 @@ onMounted(async () => {
         Ocurrió un error
       </div>
     </div>
-    <div v-if="!isLoading && wasFetchigSuccesful" class="flex">
+    <div v-if="!isLoading && wasFetchigSuccesful" class="flex" id="contenedor-historico-trimestral">
       <BarrasReutilizables
         class="columna-8"
         :data="dataInteracciones"

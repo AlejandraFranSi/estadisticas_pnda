@@ -32,7 +32,7 @@ onMounted(async () => {
         <p>Solictando datos</p>
       </div>
       <div
-        v-if="!estaCargando && error !== null"
+        v-if="!estaCargando && error"
         id="error-01"
         class="p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
       >
@@ -40,7 +40,7 @@ onMounted(async () => {
         {error}
       </div>
     </div>
-    <div v-if="!estaCargando && totalRecursos" class="flex">
+    <div v-if="!estaCargando && totalRecursos" class="flex" id="contenedor-objetivos-anuales">
       <GraficoDona
         class="columna-4"
         :titulo="'Bases de datos publicadas'"

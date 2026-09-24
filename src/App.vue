@@ -57,4 +57,9 @@ h4 {
   font-weight: bold;
   color: var(--color-neutro-7);
 }
+h5 {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--color-neutro-7);
+}
 </style>

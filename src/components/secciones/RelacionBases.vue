@@ -4,6 +4,8 @@ import IconoError from '../icons/IconoError.vue'
 import { onMounted, computed, ref, watch } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 
+const emit = defineEmits(['tablaConstruida'])
+
 const dataStore = useDataStore()
 const fechaInicio = computed(() => dataStore.fechaInicio)
 const fechaFinal = computed(() => dataStore.fechaFinal)
@@ -23,10 +25,16 @@ const solicitarDatos = async function () {
     )
     const response = await request.json()
     datum.value = JSON.parse(response.result)
+    datum.value.forEach(
+      (d) =>
+        (d['categorias'] = Array.from(new Set(d['categorias'].split(', ')))
+          .filter((d) => d.length > 0)
+          .join(', ')),
+    )
     dataTabla.value = datum.value.slice(0, 11)
-    //dataTabla.value.forEach((d) => (d['categorias'] = Array.from(d.categorias).join(', ').replace(',,', ',')))
+
     variablesTabla.value = Object.keys(dataTabla.value[0])
-    console.log(variablesTabla.value)
+    emit('tablaConstruida', dataTabla.value)
     wasFetchigSuccesful.value = true
   } catch (error) {
     console.log(error)
@@ -60,7 +68,7 @@ watch([fechaInicio, fechaFinal], async () => {
         Ocurrió un error
       </div>
     </div>
-    <div v-if="wasFetchigSuccesful && !isLoading">
+    <div v-if="wasFetchigSuccesful && !isLoading" id="contenedor-grafico-dispersion">
       <GraficoDispersion
         :titulo="'Recursos por institucion'"
         :data="datum"
@@ -71,8 +79,15 @@ watch([fechaInicio, fechaFinal], async () => {
         :leyenda-y="'Número de Recursos'"
         :leyenda-x="'Número de interacciones'"
       />
-
-      <table class="tabla-instituciones">
+    </div>
+    <div v-if="wasFetchigSuccesful && !isLoading">
+      <h5>
+        Las 10 instituciones con más bases subidas de
+        {{ fechaInicio }}
+        a
+        {{ fechaFinal }}
+      </h5>
+      <table class="tabla-instituciones" id="tabla-dispersion">
         <thead class="header-tabla">
           <tr>
             <th v-for="columna of variablesTabla" :key="columna">
@@ -94,4 +109,4 @@ watch([fechaInicio, fechaFinal], async () => {
     </div>
   </div>
 </template>
-<style></style>
+<style scoped></style>

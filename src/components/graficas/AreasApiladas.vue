@@ -49,6 +49,7 @@ const margenes = ref({
   abajo: 25,
 })
 
+//const tooltip = ref()
 const contenedorSVG = ref(null)
 const svg = ref(null)
 const ejeX = ref(null)
@@ -128,6 +129,9 @@ function dibujarAreas() {
               .y0((dd) => escalaY.value(dd[0]))
               .y1((dd) => escalaY.value(dd[1]))(d)
           })
+        /*.on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)*/
       },
       (update) => {
         update
@@ -140,6 +144,9 @@ function dibujarAreas() {
               .y0((dd) => escalaY.value(dd[0]))
               .y1((dd) => escalaY.value(dd[1]))(d)
           })
+        /*.on('mouseenter', abrirTooltip)
+          .on('mousemove', ajustarPosicionTooltip)
+          .on('mouseleave', cerrarTooltip)*/
       },
       (exit) => {
         exit.remove()
@@ -152,6 +159,23 @@ function reescalar() {
   dibujarAreas()
 }
 
+/*function abrirTooltip(event) {
+  const fecha = escalaX.value.invert(event.layerX)
+  const datum = props.data.map((d) => new Date(d[props.xVar])) //.filter((d) => d === fecha)
+  console.log(datum, fecha)
+  tooltip.value.style('visibility', 'visible').selectAll('text')
+}
+
+function ajustarPosicionTooltip(event, target) {
+  const pointer = d3.pointer(event, document.body)
+  const xPosition = pointer[0]
+  const yPosition = pointer[1]
+  tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
+}
+
+function cerrarTooltip() {
+  tooltip.value.style('visibility', 'hidden')
+}*/
 onMounted(() => {
   contenedorSVG.value = document.getElementById(`contenedor-areas-${props.etiqueta}`)
   svg.value = d3.select(`svg#svg-areas-${props.etiqueta}`)
@@ -161,6 +185,8 @@ onMounted(() => {
   textoTitulo.value = svg.value.append('text').attr('text-anchor', 'center')
   textoX.value = svg.value.append('text').attr('text-anchor', 'center')
   textoY.value = svg.value.append('text').attr('text-anchor', 'center')
+  //tooltip.value = d3.select(`div.tooltip-areas-${props.etiqueta}`)
+  //tooltip.value.style('visibility', 'hidden')
   stackedData.value = d3.stack().keys(props.categorias)(props.data)
   dimensionarGrafica()
   dibujarAreas()
@@ -173,6 +199,11 @@ onUnmounted(() => {
 </script>
 <template>
   <div :id="`contenedor-areas-${props.etiqueta}`">
+    <!--<div :class="`tooltip-areas-${props.etiqueta} tooltip`">
+      {{ props.leyendaX }}: <span>algo</span> <br />
+      {{ props.leyendaY }}: <span>algo</span> <br />
+      Categoria: <span>algo</span>
+    </div> -->
     <svg
       :id="`svg-areas-${props.etiqueta}`"
       :width="dimensiones.anchoGrafica"
@@ -187,3 +218,19 @@ onUnmounted(() => {
     </svg>
   </div>
 </template>
+<style scoped>
+.tooltip {
+  position: absolute;
+  z-index: 2;
+  background-color: #252323;
+  color: white;
+  opacity: 0.93;
+  height: auto;
+  width: 180px;
+  font-size: 14px;
+  padding: 5px;
+}
+span {
+  font-weight: bold;
+}
+</style>

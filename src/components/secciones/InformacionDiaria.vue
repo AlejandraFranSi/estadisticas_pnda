@@ -81,7 +81,7 @@ watch([fechaInicio, fechaFinal], async () => {
         Ocurrió un error
       </div>
     </div>
-    <div v-if="wasFetchigSuccesful && !isLoading">
+    <div v-if="wasFetchigSuccesful && !isLoading" id="contenedor-graficas-diarias">
       <div class="flex">
         <div class="contenedor-numeralias">
           <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioRecursos" />
