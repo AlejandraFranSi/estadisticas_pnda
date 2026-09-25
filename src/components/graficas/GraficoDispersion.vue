@@ -157,7 +157,6 @@ const abrirTooltip = function (_event, target) {
 }
 
 const ajustarPosicionTooltip = function (event) {
-  console.log(event)
   const pointer = d3.pointer(event, document.body)
   const xPosition = pointer[0] - 300
   const yPosition = pointer[1] - 100
