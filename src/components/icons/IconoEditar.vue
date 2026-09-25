@@ -1,5 +1,5 @@
 <script setup>
-const fillColor = 'black'
+const fillColor = `${import.meta.env.VITE_SECONDARY_COLOR_2}`
 </script>
 <template>
   <!--<?xml version="1.0" ?>-->

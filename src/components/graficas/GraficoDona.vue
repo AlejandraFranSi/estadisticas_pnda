@@ -120,7 +120,6 @@ function reescalar() {
 }
 
 function editarEstado() {
-  console.log('Se va a editar el estado')
   sisdaiModal.value?.abrirModal()
 }
 function confirmar() {
@@ -151,7 +150,7 @@ onUnmounted(() => {
       :disabled="!editable"
       data-html2canvas-ignore
     >
-      <IconoEditar :style="{ opacity: props.editable ? '1' : '0.3' }" />
+      <IconoEditar :style="{ opacity: props.editable ? '1' : '0.6' }" />
     </button>
 
     <svg
@@ -210,5 +209,18 @@ p {
   top: 0x;
   left: 70%;
   padding: 8px;
+}
+
+button {
+  background-color: var(--color-secundario-6);
+}
+
+button:hover {
+  background-color: var(--color-secundario-5);
+}
+
+button:disabled {
+  background-color: var(--color-neutro-4);
+  opacity: 0.4;
 }
 </style>
