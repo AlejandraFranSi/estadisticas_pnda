@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import { ref, onMounted, computed, watch } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 import AreasApiladas from '../graficas/AreasApiladas.vue'
-import TarjetaNumeralia from '../TarjetaNumeralia.vue'
+import TarjetaNumeralia from '../base/TarjetaNumeralia.vue'
 import IconoError from '../icons/IconoError.vue'
 
 const dataStore = useDataStore()

@@ -56,7 +56,7 @@ const ejeX = ref(null)
 const ejeY = ref(null)
 const textoX = ref(null)
 const textoY = ref(null)
-const textoTitulo = ref(null)
+//const textoTitulo = ref(null)
 const grupoAreas = ref(null)
 const escalaX = ref(null)
 const escalaY = ref(null)
@@ -86,13 +86,13 @@ function dimensionarGrafica() {
   ejeY.value.call(d3.axisLeft(escalaY.value).tickFormat((d) => d + '.'))
   ejeX.value.call(d3.axisBottom(escalaX.value)).selectAll('text').attr('font-size', 9)
 
-  textoTitulo.value
+  /*textoTitulo.value
     .text(props.titulo)
     .attr('x', dimensiones.value.anchoGrafica / 2 + margenes.value.izquierda)
     .attr('y', margenes.value.arriba - 10)
     .attr('text-anchor', 'middle')
     .attr('font-size', '18px')
-    .attr('font-weight', 'bold')
+    .attr('font-weight', 'bold')*/
 
   textoX.value
     .text(props.leyendaX)
@@ -182,7 +182,7 @@ onMounted(() => {
   ejeX.value = svg.value.select('g.eje-x')
   ejeY.value = svg.value.select('g.eje-y')
   grupoAreas.value = svg.value.select('g.areas')
-  textoTitulo.value = svg.value.append('text').attr('text-anchor', 'center')
+  //textoTitulo.value = svg.value.append('text').attr('text-anchor', 'center')
   textoX.value = svg.value.append('text').attr('text-anchor', 'center')
   textoY.value = svg.value.append('text').attr('text-anchor', 'center')
   //tooltip.value = d3.select(`div.tooltip-areas-${props.etiqueta}`)
@@ -204,6 +204,13 @@ onUnmounted(() => {
       {{ props.leyendaY }}: <span>algo</span> <br />
       Categoria: <span>algo</span>
     </div> -->
+    <h6>{{ props.titulo }}</h6>
+    <div class="codigo-color flex flex-contenido-centrado" v-if="escalaColor">
+      <div v-for="categoria of props.categorias" :key="categoria" class="flex p-0">
+        <div class="rect-color" :style="{ 'background-color': escalaColor(categoria) }"></div>
+        <div class="m-x-0">{{ categoria }}</div>
+      </div>
+    </div>
     <svg
       :id="`svg-areas-${props.etiqueta}`"
       :width="dimensiones.anchoGrafica"
@@ -219,6 +226,14 @@ onUnmounted(() => {
   </div>
 </template>
 <style scoped>
+h6 {
+  text-align: center;
+  font-weight: bold;
+}
+.rect-color {
+  height: 18px;
+  width: 18px;
+}
 .tooltip {
   position: absolute;
   z-index: 2;

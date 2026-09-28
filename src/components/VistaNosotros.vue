@@ -1,6 +1,6 @@
 <script setup>
 import * as d3 from 'd3'
-import TarjetaNumeralia from './TarjetaNumeralia.vue'
+import TarjetaNumeralia from './base/TarjetaNumeralia.vue'
 import GraficoCalendario from './graficas/GraficoCalendario.vue'
 import GraficoBarras from './graficas/GraficoBarras.vue'
 import BarrasAgrupadas from './graficas/BarrasAgrupadas.vue'

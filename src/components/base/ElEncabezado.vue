@@ -1,5 +1,5 @@
 <script setup>
-import IconoEstadisticas from './icons/IconoEstadisticas.vue'
+import IconoEstadisticas from '../icons/IconoEstadisticas.vue'
 import { useDataStore } from '@/stores/data.js'
 const dataStore = useDataStore()
 </script>
@@ -8,12 +8,12 @@ const dataStore = useDataStore()
     <h3><IconoEstadisticas /> Estadísticas PNDA</h3>
     <div class="secciones flex">
       <button
-        :class="dataStore.seccion === 'ptr' ? 'selected' : 'no-selected'"
-        @click="dataStore.actualizarSeccion('ptr')"
+        :class="dataStore.seccion === 'nosotros' ? 'selected' : 'no-selected'"
+        @click="dataStore.actualizarSeccion('nosotros')"
       >
-        PTR
+        Nosotros
       </button>
-      <button
+      <!--<button
         :class="dataStore.seccion === 'nosotros' ? 'selected' : 'no-selected'"
         @click="dataStore.actualizarSeccion('nosotros')"
       >
@@ -24,7 +24,7 @@ const dataStore = useDataStore()
         @click="dataStore.actualizarSeccion('instituciones')"
       >
         Instituciones
-      </button>
+      </button>-->
     </div>
   </div>
 </template>

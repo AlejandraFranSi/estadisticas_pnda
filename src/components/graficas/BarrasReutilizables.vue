@@ -58,7 +58,7 @@ const textoX = ref(null)
 const textoY = ref(null)
 const textoTitulo = ref(null)
 const colorPrimario = `${import.meta.env.VITE_PRIMARY_COLOR}`
-const noInteracciones = ref(null)
+const valorTooltip = ref(null)
 
 function graficarBarras() {
   dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth
@@ -147,7 +147,7 @@ function graficarBarras() {
 }
 
 const abrirTooltip = function (_event, target) {
-  noInteracciones.value = target.interacciones
+  valorTooltip.value = target[props.yVarName]
   tooltip.value.style('visibility', 'visible').selectAll('text')
 }
 
@@ -182,8 +182,9 @@ onUnmounted(() => {
 <template>
   <div>
     <div ref="contenedorSVG">
+      <div></div>
       <div :class="`tooltip-barras-${props.yVarName} tooltip`" data-html2canvas-ignore>
-        <span>{{ noInteracciones }}</span>
+        <span>{{ valorTooltip }}</span>
       </div>
       <svg ref="svgBarras" :width="dimensiones.anchoGrafica" :height="dimensiones.altoContenedor">
         <g
@@ -196,10 +197,19 @@ onUnmounted(() => {
           :transform="`translate(${margenes.izquierda},${margenes.arriba})`"
         ></g>
       </svg>
+      <div class="nota-pie p-x-2">
+        Los trimestres están considerados de la siguiente forma: del 1 de enero al 31 de marzo del
+        correspondiente año; del 1 de abril al 30 de junio del correspondiente año; del 1 de julio
+        al 30 de septiembre del correspondiente año; del 1 de octubre al 31 de diciembre del
+        correspondiente año
+      </div>
     </div>
   </div>
 </template>
 <style scoped>
+.nota-pie {
+  font-size: 10px;
+}
 .tooltip {
   position: absolute;
   z-index: 2;

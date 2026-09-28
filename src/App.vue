@@ -1,9 +1,7 @@
 <script setup>
-import ElEncabezado from './components/ElEncabezado.vue'
-import BarraLateral from './components/BarraLateral.vue'
-import ReportePTR from './components/ReportePTR.vue'
-import VistaInstituciones from './components/VistaInstituciones.vue'
-import VistaNosotros from './components/VistaNosotros.vue'
+import ElEncabezado from './components/base/ElEncabezado.vue'
+import BarraLateral from './components/base/BarraLateral.vue'
+import ReporteNosotros from './components/ReporteNosotros.vue'
 import { useDataStore } from '@/stores/data.js'
 
 const dataStore = useDataStore()
@@ -17,9 +15,9 @@ const dataStore = useDataStore()
   <main>
     <BarraLateral class="side-bar" />
     <div class="contenido">
-      <ReportePTR v-if="dataStore.seccion === 'ptr'" />
-      <VistaNosotros v-if="dataStore.seccion === 'nosotros'" />
-      <VistaInstituciones v-if="dataStore.seccion === 'instituciones'" />
+      <ReporteNosotros v-if="dataStore.seccion === 'nosotros'" />
+      <!--<VistaNosotros v-if="dataStore.seccion === 'nosotros'" />
+      <VistaInstituciones v-if="dataStore.seccion === 'instituciones'" />-->
     </div>
   </main>
 </template>
