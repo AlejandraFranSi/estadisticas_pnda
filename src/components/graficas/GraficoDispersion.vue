@@ -76,7 +76,7 @@ function dimensionarGrafica() {
   escalaX.value = d3
     .scaleLinear()
     .domain(d3.extent(props.data.map((d) => new Date(d[props.xVarName]))))
-    .range([0, dimensiones.value.anchoGrafica])
+    .range([0, dimensiones.value.anchoGrafica - 70])
 
   escalaY.value = d3
     .scaleLinear()

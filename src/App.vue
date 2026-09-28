@@ -2,6 +2,7 @@
 import ElEncabezado from './components/base/ElEncabezado.vue'
 import BarraLateral from './components/base/BarraLateral.vue'
 import ReporteNosotros from './components/ReporteNosotros.vue'
+import ReportePTAR from './components/ReportePTAR.vue'
 import { useDataStore } from '@/stores/data.js'
 
 const dataStore = useDataStore()
@@ -16,6 +17,7 @@ const dataStore = useDataStore()
     <BarraLateral class="side-bar" />
     <div class="contenido">
       <ReporteNosotros v-if="dataStore.seccion === 'nosotros'" />
+      <ReportePTAR v-if="dataStore.seccion === 'ptar'" />
       <!--<VistaNosotros v-if="dataStore.seccion === 'nosotros'" />
       <VistaInstituciones v-if="dataStore.seccion === 'instituciones'" />-->
     </div>

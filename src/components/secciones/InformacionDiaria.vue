@@ -33,7 +33,7 @@ async function solicitarDatos() {
     )
     const responseRecursos = await requestRecursos.json()
     datosRecursos.value = JSON.parse(responseRecursos.data)
-    categoriasRecursos.value = [...responseRecursos.top_categorias, 'Otra']
+    categoriasRecursos.value = [...responseRecursos.top_categorias, 'Otras']
     maximoRecursos.value = responseRecursos.maximo
     promedioRecursos.value = d3.format('.2f')(responseRecursos.promedio)
     desviacionRecursos.value = d3.format('.2f')(responseRecursos.desviacion)

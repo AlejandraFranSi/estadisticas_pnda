@@ -13,6 +13,12 @@ const dataStore = useDataStore()
       >
         Nosotros
       </button>
+      <button
+        :class="dataStore.seccion === 'ptar' ? 'selected' : 'no-selected'"
+        @click="dataStore.actualizarSeccion('ptar')"
+      >
+        PTAR
+      </button>
       <!--<button
         :class="dataStore.seccion === 'nosotros' ? 'selected' : 'no-selected'"
         @click="dataStore.actualizarSeccion('nosotros')"
