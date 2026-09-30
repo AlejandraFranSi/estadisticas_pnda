@@ -243,7 +243,7 @@ const exportar = async function () {
   </div>
 </template>
 <style scoped>
-.boton-primario {
+/*.boton-primario {
   background-color: var(--color-secundario-8);
   border-color: var(--color-secundario-8);
 }
@@ -251,5 +251,5 @@ const exportar = async function () {
 .boton-primario:hover {
   background-color: var(--color-secundario-7);
   border-color: var(--color-secundario-7);
-}
+}*/
 </style>

@@ -28,6 +28,20 @@ const dataStore = useDataStore()
 /*#3B364A*/
 
 :root {
+  --color-secundario-1: #f6ebef;
+  --color-secundario-2: #f2e6ec;
+  --color-secundario-3: #f2e6ec;
+  --color-secundario-4: #e2cfd8;
+  --color-secundario-5: #d3b9c4;
+  --color-secundario-6: #6b2a44;
+  --color-secundario-7: #6b223f;
+  --color-secundario-8: #661b39;
+  --color-secundario-9: #611232;
+  --color-secundario-10: #51132c;
+  --color-secundario-11: #471529;
+  --color-secundario-12: #3e1626;
+  --color-primario-3: #751a35;
+  --color-primario-4: #9a2246;
   --color-neutro-7: #47454e;
 }
 body {
@@ -55,11 +69,11 @@ body {
 h4 {
   font-size: 28px;
   font-weight: bold;
-  color: var(--color-neutro-7);
+  /*color: var(--color-neutro-7);*/
 }
 h5 {
   font-size: 20px;
   font-weight: bold;
-  color: var(--color-neutro-7);
+  /*color: var(--color-neutro-7);*/
 }
 </style>

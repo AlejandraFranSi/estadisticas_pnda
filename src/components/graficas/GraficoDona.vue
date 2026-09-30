@@ -145,7 +145,7 @@ onUnmounted(() => {
 <template>
   <div class="contenedor-dona" :id="`contenedor-dona-${props.etiqueta}`">
     <button
-      class="boton-editar"
+      class="boton-editar boton-primario"
       @click="editarEstado"
       :disabled="!editable"
       data-html2canvas-ignore
@@ -211,13 +211,13 @@ p {
   padding: 8px;
 }
 
-button {
+/*button {
   background-color: var(--color-secundario-6);
 }
 
 button:hover {
   background-color: var(--color-secundario-5);
-}
+}*/
 
 button:disabled {
   background-color: var(--color-neutro-4);

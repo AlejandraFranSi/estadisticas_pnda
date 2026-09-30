@@ -62,7 +62,7 @@ const escalaX = ref(null)
 const escalaY = ref(null)
 const escalaColor = ref(null)
 const stackedData = ref(null)
-const colorList = ['#D2AB99', '#8DB38B', '#56876D', '#484D6D']
+const colorList = ['#611232', '#002F29', '#A57F2C', '#aaaaaa']
 
 function dimensionarGrafica() {
   dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth

@@ -111,7 +111,7 @@ watch([fechaInicio, fechaFinal], async () => {
 </template>
 <style scoped>
 thead {
-  background-color: var(--color-secundario-8);
+  background-color: var(--color-primario-3);
   color: var(--color-neutro-0);
 }
 </style>
