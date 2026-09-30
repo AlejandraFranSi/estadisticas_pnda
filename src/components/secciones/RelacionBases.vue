@@ -81,12 +81,12 @@ watch([fechaInicio, fechaFinal], async () => {
       />
     </div>
     <div v-if="wasFetchigSuccesful && !isLoading">
-      <h5>
+      <h4>
         Las 10 instituciones con más bases subidas de
         {{ fechaInicio }}
         a
         {{ fechaFinal }}
-      </h5>
+      </h4>
       <table class="tabla-instituciones" id="tabla-dispersion">
         <thead class="header-tabla">
           <tr>

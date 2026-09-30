@@ -28,6 +28,7 @@ const dataStore = useDataStore()
 /*#3B364A*/
 
 :root {
+  /*
   --color-secundario-1: #f6ebef;
   --color-secundario-2: #f2e6ec;
   --color-secundario-3: #f2e6ec;
@@ -42,6 +43,21 @@ const dataStore = useDataStore()
   --color-secundario-12: #3e1626;
   --color-primario-3: #751a35;
   --color-primario-4: #9a2246;
+  */
+  --color-secundario-1: #e4e8e7;
+  --color-secundario-2: #cddbd9;
+  --color-secundario-3: #a5bcb9;
+  --color-secundario-4: #aeded7;
+  --color-secundario-5: #4a827a;
+  --color-secundario-6: #2d5e57;
+  --color-secundario-7: #18443e;
+  --color-secundario-8: #123b36;
+  --color-secundario-9: #0c342f;
+  --color-secundario-10: #09322d;
+  --color-secundario-11: #002f29;
+  --color-secundario-12: #01231e;
+  --color-primario-3: #335955;
+  --color-primario-4: #427671;
   --color-neutro-7: #47454e;
 }
 body {

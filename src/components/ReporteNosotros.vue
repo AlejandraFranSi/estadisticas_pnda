@@ -163,11 +163,13 @@ const generarReporte = async function () {
       altoCanvasDispersion,
     )
     posicionY = posicionY + altoCanvasDispersion + config.padding
-
+    doc.getFontSize(config.fonts.large)
+    doc.text('Las 10 instituciones con más bases subidas', config.margins.left, posicionY)
+    posicionY += config.padding
     doc.autoTable({
       startY: posicionY,
       html: '#tabla-dispersion',
-      headStyles: { fillColor: [69, 59, 103] },
+      headStyles: { fillColor: [51, 89, 85] },
     })
     // Guardamos el documento
     doc.save(`${nombreReporte.value}.pdf`)

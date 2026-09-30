@@ -21,7 +21,7 @@ const fechaFinal = computed({
 })
 </script>
 <template>
-  <div class="p-3">
+  <div class="p-3" id="side-bar">
     <h4>Selecciona el intervalo temporal de interés</h4>
     <p>Estos controles no modifican las secciones de Objetivos Anuales ni Histórico Trimestral</p>
     <div class="p-x-2">
@@ -50,6 +50,6 @@ const fechaFinal = computed({
 </template>
 <style scoped>
 div {
-  background-color: var(--color-neutro-2);
+  background-color: var(--color-secundario-1);
 }
 </style>

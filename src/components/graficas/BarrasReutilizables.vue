@@ -152,9 +152,10 @@ const abrirTooltip = function (_event, target) {
 }
 
 const ajustarPosicionTooltip = function (event) {
+  const leftMargin = document.getElementById('side-bar')?.clientWidth
   const pointer = d3.pointer(event, document.body)
-  const xPosition = pointer[0] - 300
-  const yPosition = pointer[1] - 100
+  const xPosition = pointer[0] - leftMargin + 10
+  const yPosition = pointer[1] - 80
   tooltip.value.style('left', xPosition + 'px').style('top', yPosition + 'px')
 }
 

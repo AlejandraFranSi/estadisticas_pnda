@@ -35,9 +35,12 @@ const dataStore = useDataStore()
   </div>
 </template>
 <style scoped>
+h3 {
+  margin: 8px;
+}
 .contenedor-header {
   padding: 0px 8px;
-  max-height: 80px;
+  height: 80px;
   background-color: var(--color-secundario-11);
   color: var(--color-neutro-0);
   align-items: center;
@@ -62,7 +65,7 @@ button:hover {
 }
 
 .selected {
-  border-bottom: solid 4px var(--color-secundario-6);
+  border-bottom: solid 5px var(--color-secundario-6);
 }
 
 @media (max-width: 580px) {

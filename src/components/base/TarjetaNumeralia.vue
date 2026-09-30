@@ -20,10 +20,10 @@ const props = defineProps({
 div {
   width: 100%;
   border-radius: 16px;
-  background-color: var(--color-secundario-4);
+  background-color: var(--color-secundario-2);
 }
 span {
-  background-color: var(--color-secundario-8);
+  background-color: var(--color-primario-3);
   color: var(--color-neutro-0);
   padding: 0px 8px;
   border-radius: 8px;
