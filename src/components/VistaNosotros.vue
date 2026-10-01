@@ -3,7 +3,7 @@ import * as d3 from 'd3'
 import TarjetaNumeralia from './base/TarjetaNumeralia.vue'
 import GraficoCalendario from './graficas/GraficoCalendario.vue'
 import GraficoBarras from './graficas/GraficoBarras.vue'
-import BarrasAgrupadas from './graficas/BarrasAgrupadas.vue'
+import BarrasApiladas from './graficas/BarrasApiladas.vue'
 import IconoError from './icons/IconoError.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useDataStore } from '@/stores/data.js'
@@ -112,7 +112,7 @@ onMounted(async () => {
 
     <div v-if="!estaCargando && recursos.length > 0" id="contenedor-estadisticas">
       <h3>Correos atendidos por categoría</h3>
-      <BarrasAgrupadas />
+      <BarrasApiladas />
 
       <h3>Numeralias generales:</h3>
       <div class="flex flex-contenido-centrado" id="numeralias-grales">
