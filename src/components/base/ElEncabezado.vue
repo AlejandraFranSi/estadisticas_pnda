@@ -1,11 +1,11 @@
 <script setup>
-import IconoEstadisticas from '../icons/IconoEstadisticas.vue'
 import { useDataStore } from '@/stores/data.js'
 const dataStore = useDataStore()
 </script>
 <template>
   <div class="contenedor-header flex">
-    <h3><IconoEstadisticas /> Estadísticas PNDA</h3>
+    <h3 class="m-x-2">Estadísticas PNDA</h3>
+
     <div class="secciones flex">
       <button
         :class="dataStore.seccion === 'nosotros' ? 'selected' : 'no-selected'"
@@ -41,7 +41,7 @@ h3 {
 .contenedor-header {
   padding: 0px 8px;
   height: 80px;
-  background-color: var(--color-secundario-11);
+  background-color: var(--color-secundario-12);
   color: var(--color-neutro-0);
   align-items: center;
   gap: 16px;
@@ -55,9 +55,10 @@ h3 {
 
 button {
   height: 100%;
-  background-color: var(--color-secundario-11);
+  background-color: var(--color-secundario-12);
   color: var(--color-neutro-0);
   border-radius: 0px;
+  font-weight: bold;
 }
 
 button:hover {
@@ -65,7 +66,7 @@ button:hover {
 }
 
 .selected {
-  border-bottom: solid 5px var(--color-secundario-6);
+  border-bottom: solid 5px var(--color-secundario-7);
 }
 
 @media (max-width: 580px) {

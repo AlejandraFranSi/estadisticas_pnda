@@ -22,7 +22,7 @@ const fechaFinal = computed({
 })
 </script>
 <template>
-  <div class="p-3" id="side-bar">
+  <div class="p-3 contenedor-general" id="side-bar">
     <div v-if="dataStore.seccion == 'nosotros'">
       <h4>Selecciona el intervalo temporal de interés</h4>
       <p>Estos controles no modifican las secciones de Objetivos Anuales ni Histórico Trimestral</p>
@@ -49,13 +49,12 @@ const fechaFinal = computed({
         />
       </div>
     </div>
-    <div v-else>
-      <h4>Selecciona el año del que deseas ver la información</h4>
+    <div v-else class="m-4">
       <fieldset>
-        <legend class="leyenda-radio">Select a maintenance drone:</legend>
+        <legend class="leyenda-radio">Selecciona el año del que deseas ver la información</legend>
         <div>
           <input v-model="anioSeleccionado" type="radio" id="2026" value="2026" name="grupo_anio" />
-          <label for="2026">2026</label>
+          <label for="2026" class="selector-anio">2026</label>
         </div>
         <div>
           <input
@@ -66,7 +65,7 @@ const fechaFinal = computed({
             name="grupo_anio"
             disabled
           />
-          <label for="2027">2027</label>
+          <label for="2027" class="selector-anio">2027</label>
         </div>
         <div>
           <input
@@ -77,22 +76,29 @@ const fechaFinal = computed({
             name="grupo_anio"
             disabled
           />
-          <label for="2027">2028</label>
+          <label for="2027" class="selector-anio">2028</label>
         </div>
       </fieldset>
     </div>
   </div>
 </template>
 <style scoped>
-div {
-  background-color: var(--color-secundario-1);
+.contenedor-general {
+  /*background-color: var(--color-secundario-10);*/
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-secundario-11),
+    var(--color-secundario-7)
+  );
+  color: var(--color-neutro-1);
 }
 
 .leyenda-radio {
-  color: var(--color-secundario-10);
-  font-weight: bold;
+  color: var(--color-neutro-1);
+  font-size: 16px;
 }
-fieldset {
-  background-color: red!;
+.selector-anio {
+  color: white;
+  font-size: 14px;
 }
 </style>
