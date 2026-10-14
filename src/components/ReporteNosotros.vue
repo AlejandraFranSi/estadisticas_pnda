@@ -187,9 +187,9 @@ const exportar = async function () {
 }
 </script>
 <template>
-  <div class="p-3">
+  <div class="p-x-4 p-y-2">
     <ObjetivosAnuales />
-    <HistoricoTrimestral />
+    <!--<HistoricoTrimestral />
     <InformacionDiaria />
     <RelacionBases @tabla-construida="establecerDataTabla" />
     <div class="button-actions m-y-3 flex flex-contenido-final">
@@ -241,17 +241,13 @@ const exportar = async function () {
           <button @click="modalExportacion?.cerrarModal">Cancelar</button>
         </div>
       </template>
-    </SisdaiModal>
+    </SisdaiModal>-->
   </div>
 </template>
 <style scoped>
-/*.boton-primario {
-  background-color: var(--color-secundario-8);
-  border-color: var(--color-secundario-8);
+h1,
+h2,
+h3 {
+  color: var(--color-encabezados);
 }
-
-.boton-primario:hover {
-  background-color: var(--color-secundario-7);
-  border-color: var(--color-secundario-7);
-}*/
 </style>

@@ -25,7 +25,7 @@ onMounted(async () => {
 </script>
 <template>
   <div>
-    <h4>Objetivos anuales</h4>
+    <h3>Objetivos anuales</h3>
     <div class="flex flex-contenido-centrado" id="spinner-01">
       <div v-if="estaCargando" id="spinner flex-vertical-centrado">
         <img src="/loading.gif" />
@@ -89,4 +89,10 @@ onMounted(async () => {
     </div>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+h1,
+h2,
+h3 {
+  color: var(--color-encabezados);
+}
+</style>

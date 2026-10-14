@@ -23,11 +23,10 @@ const fechaFinal = computed({
 </script>
 <template>
   <div class="p-3 contenedor-general" id="side-bar">
-    <div v-if="dataStore.seccion == 'nosotros'">
-      <h4>Selecciona el intervalo temporal de interés</h4>
-      <p>Estos controles no modifican las secciones de Objetivos Anuales ni Histórico Trimestral</p>
-      <div class="p-x-2">
-        <label for="start">Fecha de inicio:</label>
+    <div v-if="dataStore.seccion == 'nosotros'" class="m-4">
+      <h4 class="leyenda-radio">Selecciona el intervalo temporal de interés</h4>
+      <div class="p-2">
+        <label for="start" class="etiqueta-tiempo">Fecha de inicio:</label>
         <input
           type="date"
           id="start"
@@ -38,7 +37,7 @@ const fechaFinal = computed({
         />
       </div>
       <div class="p-2">
-        <label for="end">Fecha de cierre:</label>
+        <label for="end" class="etiqueta-tiempo">Fecha de cierre:</label>
         <input
           type="date"
           id="end"
@@ -91,6 +90,10 @@ const fechaFinal = computed({
     var(--color-secundario-7)
   );
   color: var(--color-neutro-1);
+}
+.etiqueta-tiempo {
+  color: white;
+  font-size: 12px;
 }
 
 .leyenda-radio {

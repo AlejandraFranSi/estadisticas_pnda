@@ -9,33 +9,25 @@ import { onMounted, ref } from 'vue'
 
 const isLoading = ref(null)
 const wasFetchigSuccesful = ref(null)
-const conjuntos_x_institucion = ref(null)
+const data_x_institucion = ref(null)
 const data = ref()
 const listaSectores = ref([])
 const numeralias = ref({
   Instituciones: 0,
   'Conjuntos en plan': 0,
-  'Conjuntos publicados': 0,
+  'Conjuntos creados': 0,
   'Recursos en plan': 0,
-  'Recursos publicados': 0,
+  'Recursos creados': 0,
 })
-const columnasConjuntos = [
-  'nombre_institucion',
-  'conjuntos_plan',
-  'conjuntos_subidos',
-  'conjuntos_actualizados',
-  'recursos_plan',
-  'recursos_subidos',
-  'recursos_actualizados',
-]
+
 const dictColumnasConjuntos = {
   nombre_institucion: 'Institución',
   conjuntos_plan: 'Conjuntos en plan',
-  conjuntos_subidos: 'Conjuntos creados',
-  conjuntos_actualizados: 'Conjuntos actualizados',
+  conjuntos_anuales_creados: 'Conjuntos creados',
+  conjuntos_anuales_actualizados: 'Conjuntos actulizados CKAN',
   recursos_plan: 'Recursos en plan',
-  recursos_subidos: 'Recursos creados',
-  recursos_actualizados: 'Recursos actualizados',
+  recursos_anuales_creados: 'Recursos creados',
+  recursos_anuales_actualizados: 'Recursos actualizados CKAN',
 }
 
 async function solicitarDatos() {
@@ -43,33 +35,37 @@ async function solicitarDatos() {
   wasFetchigSuccesful.value = null
   try {
     const request_ptar = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/data_ptar?anio_param=2026`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/publicacion_instituciones?anio=2026`,
     )
     const response_ptar = await request_ptar.json()
     numeralias.value['Instituciones'] = response_ptar.instituciones
     numeralias.value['Conjuntos en plan'] = response_ptar.conjuntos_plan
-    numeralias.value['Conjuntos publicados'] = response_ptar.total_conjuntos
+    numeralias.value['Conjuntos creados'] = response_ptar.total_conjuntos
     numeralias.value['Recursos en plan'] = response_ptar.recursos_plan
-    numeralias.value['Recursos publicados'] = response_ptar.total_recursos
+    numeralias.value['Recursos creados'] = response_ptar.total_recursos
 
-    conjuntos_x_institucion.value = JSON.parse(response_ptar.resultados)
+    data_x_institucion.value = JSON.parse(response_ptar.resultados)
+
     const datum = {}
-    conjuntos_x_institucion.value.forEach((d) => {
+    data_x_institucion.value.forEach((d) => {
       const nombre = `${d.clave_sector}-${d.sector}`
-
       if (!Object.keys(datum).includes(nombre)) {
         datum[nombre] = {
           clave_sector: d.clave_sector,
           nombre_institucion: 1,
           conjuntos_plan: Number(d.conjuntos_plan) ? Number(d.conjuntos_plan) : 0,
-          conjuntos_subidos: Number(d.conjuntos_subidos) ? Number(d.conjuntos_subidos) : 0,
-          conjuntos_actualizados: Number(d.conjuntos_actualizados)
-            ? Number(d.conjuntos_actualizados)
+          conjuntos_anuales_creados: Number(d.conjuntos_anuales_creados)
+            ? Number(d.conjuntos_anuales_creados)
+            : 0,
+          conjuntos_anuales_actualizados: Number(d.conjuntos_anuales_actualizados)
+            ? Number(d.conjuntos_anuales_actualizados)
             : 0,
           recursos_plan: Number(d.recursos_plan) ? Number(d.recursos_plan) : 0,
-          recursos_subidos: Number(d.recursos_subidos) ? Number(d.recursos_subidos) : 0,
-          recursos_actualizados: Number(d.recursos_actualizados)
-            ? Number(d.recursos_actualizados)
+          recursos_anuales_creados: Number(d.recursos_anuales_creados)
+            ? Number(d.recursos_anuales_creados)
+            : 0,
+          recursos_anuales_actualizados: Number(d.recursos_anuales_actualizados)
+            ? Number(d.recursos_anuales_actualizados)
             : 0,
           tabla: [d],
           show: false,
@@ -79,21 +75,22 @@ async function solicitarDatos() {
         datum[nombre]['conjuntos_plan'] = Number(d.conjuntos_plan)
           ? datum[nombre]['conjuntos_plan'] + Number(d.conjuntos_plan)
           : datum[nombre]['conjuntos_plan']
-        datum[nombre]['conjuntos_subidos'] = Number(d.conjuntos_subidos)
-          ? datum[nombre]['conjuntos_subidos'] + Number(d.conjuntos_subidos)
-          : datum[nombre]['conjuntos_subidos']
-        datum[nombre]['conjuntos_actualizados'] = Number(d.conjuntos_actualizados)
-          ? datum[nombre]['conjuntos_actualizados'] + Number(d.conjuntos_actualizados)
-          : datum[nombre]['conjuntos_actualizados']
+        datum[nombre]['conjuntos_anuales_creados'] = Number(d.conjuntos_anuales_creados)
+          ? datum[nombre]['conjuntos_anuales_creados'] + Number(d.conjuntos_anuales_creados)
+          : datum[nombre]['conjuntos_anuales_creados']
+        datum[nombre]['conjuntos_anuales_actualizados'] = Number(d.conjuntos_anuales_actualizados)
+          ? datum[nombre]['conjuntos_anuales_actualizados'] +
+            Number(d.conjuntos_anuales_actualizados)
+          : datum[nombre]['conjuntos_anuales_actualizados']
         datum[nombre]['recursos_plan'] = Number(d.recursos_plan)
           ? datum[nombre]['recursos_plan'] + Number(d.recursos_plan)
           : datum[nombre]['recursos_plan']
-        datum[nombre]['recursos_subidos'] = Number(d.recursos_subidos)
-          ? datum[nombre]['recursos_subidos'] + Number(d.recursos_subidos)
-          : datum[nombre]['recursos_subidos']
-        datum[nombre]['recursos_actualizados'] = Number(d.recursos_actualizados)
-          ? datum[nombre]['recursos_actualizados'] + Number(d.recursos_actualizados)
-          : datum[nombre]['recursos_actualizados']
+        datum[nombre]['recursos_anuales_creados'] = Number(d.recursos_anuales_creados)
+          ? datum[nombre]['recursos_anuales_creados'] + Number(d.recursos_anuales_creados)
+          : datum[nombre]['recursos_anuales_creados']
+        datum[nombre]['recursos_anuales_actualizados'] = Number(d.recursos_anuales_actualizados)
+          ? datum[nombre]['recursos_anuales_actualizados'] + Number(d.recursos_anuales_actualizados)
+          : datum[nombre]['recursos_anuales_actualizados']
         datum[nombre]['tabla'] = [...datum[nombre]['tabla'], d].sort((a, b) =>
           a['nombre_institucion'].localeCompare(b['nombre_institucion']),
         )
@@ -154,7 +151,7 @@ onMounted(async () => {
       <table class="tabla-sectores" id="tabla-sectores">
         <thead class="header-tabla">
           <tr>
-            <th v-for="columna of columnasConjuntos" :key="columna">
+            <th v-for="columna of Object.keys(dictColumnasConjuntos)" :key="columna">
               {{ dictColumnasConjuntos[columna] }}:
               <span class="total-tabla">{{ data[sector][columna] }}</span>
             </th>

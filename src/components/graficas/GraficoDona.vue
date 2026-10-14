@@ -202,6 +202,7 @@ onUnmounted(() => {
 p {
   font-weight: bold;
   text-align: center;
+  color: var(--color-encabezados);
 }
 
 .boton-editar {
@@ -211,13 +212,13 @@ p {
   padding: 8px;
 }
 
-/*button {
-  background-color: var(--color-secundario-6);
+button {
+  background-color: var(--color-secundario-11);
 }
 
 button:hover {
-  background-color: var(--color-secundario-5);
-}*/
+  background-color: var(--color-secundario-8);
+}
 
 button:disabled {
   background-color: var(--color-neutro-4);
