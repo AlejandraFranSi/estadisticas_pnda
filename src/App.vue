@@ -3,9 +3,11 @@ import ElEncabezado from './components/base/ElEncabezado.vue'
 import BarraLateral from './components/base/BarraLateral.vue'
 import ReporteNosotros from './components/ReporteNosotros.vue'
 import ReportePTAR from './components/ReportePTAR.vue'
+import { computed } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 
 const dataStore = useDataStore()
+const mostrarSidebar = computed(() => dataStore.mostrarBarra)
 </script>
 
 <template>
@@ -14,8 +16,8 @@ const dataStore = useDataStore()
   </header>
 
   <main>
-    <BarraLateral class="side-bar" />
-    <div class="contenido">
+    <BarraLateral :class="mostrarSidebar ? 'side-bar-expandida' : 'side-bar-contraida'" />
+    <div :class="mostrarSidebar ? 'contenido-contraido' : 'contenido-largo'">
       <ReporteNosotros v-if="dataStore.seccion === 'nosotros'" />
       <ReportePTAR v-if="dataStore.seccion === 'ptar'" />
       <!--<VistaNosotros v-if="dataStore.seccion === 'nosotros'" />
@@ -62,21 +64,34 @@ body {
   z-index: 3;
 }
 
-.side-bar {
+.side-bar-contraida {
+  position: fixed;
+  top: 80px;
+  width: 48px;
+  height: calc(100vh - 80px);
+}
+
+.side-bar-expandida {
   position: fixed;
   top: 80px;
   width: 15vw;
   height: calc(100vh - 80px);
 }
 
-.contenido {
+.contenido-largo {
+  width: calc(100vw - 48px);
+  position: absolute;
+  left: 48px;
+  top: 80px;
+  overflow-y: scroll;
+}
+.contenido-contraido {
   width: 85vw;
   position: absolute;
   left: 15vw;
   top: 80px;
   overflow-y: scroll;
 }
-
 h4 {
   font-size: 28px;
   font-weight: bold;

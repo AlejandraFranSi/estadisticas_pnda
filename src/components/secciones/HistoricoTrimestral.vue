@@ -2,21 +2,15 @@
 import BarrasReutilizables from '../graficas/BarrasReutilizables.vue'
 import IconoError from '../icons/IconoError.vue'
 import { ref, onMounted } from 'vue'
-//import { useDataStore } from '@/stores/data.js'
 const isLoading = ref(true)
 const wasFetchigSuccesful = ref(null)
 const dataInteracciones = ref(null)
 const dataRecursos = ref(null)
 
-// const dataStore = useDataStore()
-//const fechaInicio = computed(() => dataStore.fechaInicio)
-//const fechaFinal = computed(() => dataStore.fechaFinal)
-
 async function solicitarDatos() {
   isLoading.value = true
   wasFetchigSuccesful.value = null
   try {
-    // `${import.meta.env.VITE_BACKEND_URL}/api/correos_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`
     const requestInteracciones = await fetch(
       `${import.meta.env.VITE_BACKEND_URL}/api/correos_trimestrales`,
     )
@@ -35,10 +29,6 @@ async function solicitarDatos() {
   }
   isLoading.value = false
 }
-
-/*watch([fechaInicio, fechaFinal], async () => {
-  await solicitarDatos()
-})*/
 
 onMounted(async () => {
   await solicitarDatos()

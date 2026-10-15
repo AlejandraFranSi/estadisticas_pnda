@@ -9,7 +9,7 @@ import { onMounted, ref } from 'vue'
 
 const isLoading = ref(null)
 const wasFetchigSuccesful = ref(null)
-const data_x_institucion = ref(null)
+const dataInstitucion = ref(null)
 const data = ref()
 const listaSectores = ref([])
 const numeralias = ref({
@@ -23,11 +23,13 @@ const numeralias = ref({
 const dictColumnasConjuntos = {
   nombre_institucion: 'Institución',
   conjuntos_plan: 'Conjuntos en plan',
-  conjuntos_anuales_creados: 'Conjuntos creados',
+  conjuntos_anuales_creados: 'Conjuntos creados CKAN',
   conjuntos_anuales_actualizados: 'Conjuntos actulizados CKAN',
+  conjuntos_anuales_actualizados_si: 'Conjuntos actualizados SI',
   recursos_plan: 'Recursos en plan',
-  recursos_anuales_creados: 'Recursos creados',
+  recursos_anuales_creados: 'Recursos creados CKAN',
   recursos_anuales_actualizados: 'Recursos actualizados CKAN',
+  recursos_anuales_actualizados_si: 'Recursos actualizados SI',
 }
 
 async function solicitarDatos() {
@@ -44,10 +46,10 @@ async function solicitarDatos() {
     numeralias.value['Recursos en plan'] = response_ptar.recursos_plan
     numeralias.value['Recursos creados'] = response_ptar.total_recursos
 
-    data_x_institucion.value = JSON.parse(response_ptar.resultados)
-
+    dataInstitucion.value = JSON.parse(response_ptar.resultados)
+    console.log(dataInstitucion.value)
     const datum = {}
-    data_x_institucion.value.forEach((d) => {
+    dataInstitucion.value.forEach((d) => {
       const nombre = `${d.clave_sector}-${d.sector}`
       if (!Object.keys(datum).includes(nombre)) {
         datum[nombre] = {
@@ -60,12 +62,18 @@ async function solicitarDatos() {
           conjuntos_anuales_actualizados: Number(d.conjuntos_anuales_actualizados)
             ? Number(d.conjuntos_anuales_actualizados)
             : 0,
+          conjuntos_anuales_actualizados_si: Number(d.conjuntos_anuales_actualizados_si)
+            ? Number(d.conjuntos_anuales_actualizados_si)
+            : 0,
           recursos_plan: Number(d.recursos_plan) ? Number(d.recursos_plan) : 0,
           recursos_anuales_creados: Number(d.recursos_anuales_creados)
             ? Number(d.recursos_anuales_creados)
             : 0,
           recursos_anuales_actualizados: Number(d.recursos_anuales_actualizados)
             ? Number(d.recursos_anuales_actualizados)
+            : 0,
+          recursos_anuales_actualizados_si: Number(d.recursos_anuales_actualizados_si)
+            ? Number(d.recursos_anuales_actualizados_si)
             : 0,
           tabla: [d],
           show: false,
@@ -82,6 +90,12 @@ async function solicitarDatos() {
           ? datum[nombre]['conjuntos_anuales_actualizados'] +
             Number(d.conjuntos_anuales_actualizados)
           : datum[nombre]['conjuntos_anuales_actualizados']
+        datum[nombre]['conjuntos_anuales_actualizados_si'] = Number(
+          d.conjuntos_anuales_actualizados_si,
+        )
+          ? datum[nombre]['conjuntos_anuales_actualizados_si'] +
+            Number(d.conjuntos_anuales_actualizados_si)
+          : datum[nombre]['conjuntos_anuales_actualizados']
         datum[nombre]['recursos_plan'] = Number(d.recursos_plan)
           ? datum[nombre]['recursos_plan'] + Number(d.recursos_plan)
           : datum[nombre]['recursos_plan']
@@ -91,6 +105,12 @@ async function solicitarDatos() {
         datum[nombre]['recursos_anuales_actualizados'] = Number(d.recursos_anuales_actualizados)
           ? datum[nombre]['recursos_anuales_actualizados'] + Number(d.recursos_anuales_actualizados)
           : datum[nombre]['recursos_anuales_actualizados']
+        datum[nombre]['recursos_anuales_actualizados_si'] = Number(
+          d.recursos_anuales_actualizados_si,
+        )
+          ? datum[nombre]['recursos_anuales_actualizados_si'] +
+            Number(d.recursos_anuales_actualizados_si)
+          : datum[nombre]['recursos_anuales_actualizados_si']
         datum[nombre]['tabla'] = [...datum[nombre]['tabla'], d].sort((a, b) =>
           a['nombre_institucion'].localeCompare(b['nombre_institucion']),
         )
@@ -127,7 +147,20 @@ onMounted(async () => {
     <h1>Plataforma Nacional de Datos Abiertos</h1>
     <h2>Estadísticas</h2>
     <h3>Publicación de datos por sector</h3>
-
+    <p>Las numeralias muestran:</p>
+    <ol>
+      <li>El total de instituciones que tienen recursos publicados en la PNDA</li>
+      <li>
+        El número total de conjuntos listados en todos los planes institucionales (quitando las
+        filas correspondientes a recursos por publicarse en 2027)
+      </li>
+      <li>El número de conjuntos creados en el año, según la data del CKAN</li>
+      <li>
+        El número total de filas en todos los planes institucionales (quitando las filas
+        correspondientes a recursos por publicarse en 2027)
+      </li>
+      <li>El número de recursos creados en el año, según la data del CKAN</li>
+    </ol>
     <div class="m-y-5 contenedor-numeralias flex flex-contenido-centrado">
       <div v-for="opcion of Object.keys(numeralias)" :key="opcion" class="tarjeta columna-3">
         <div class="tarjeta-cuerpo p-y-0">
@@ -136,6 +169,41 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+
+    <p>
+      La información de creación y actualización de recursos y conjuntos que se obtiene del
+      <span class="highlight">Sistema de información</span> considera lo siguiente:
+    </p>
+    <ul>
+      <li>
+        <span class="highlight">Sobreescribir</span> borra el recurso que está y lo sobreescribe con
+        otro; esto se hace solamente si la base de datos que envían contiene a la anterior. Esto
+        cuenta como actualizar un conjunto y también cuenta como actualizar un recurso.
+      </li>
+      <li>
+        <span class="highlight">Actualizar</span> es cuando la base no contiene a la anterior,
+        entonces se crea un nuevo recurso en el mismo conjunto. Esto cuenta como crear un recurso y
+        como actualizar un conjunto.
+      </li>
+      <li><span class="highlight">Nuevo</span> crea un recurso nuevo y un conjunto nuevo</li>
+    </ul>
+    <p>
+      La información de creación y actualización de recursos y conjuntos que se obtiene del
+      <span class="highlight">CKAN</span>
+      considera lo siguiente
+    </p>
+    <ul>
+      <li>
+        Los recursos que se actualizan se obtienen primero filtrando por el año de actualización y
+        después revisando que la fecha de creación y de actualización sean diferentes. Esto no
+        permite identificar cuántas veces se actualizó un mismo recurso, pues no se guardan fechas
+        intermedias.
+      </li>
+      <li>
+        Para considerar que un conjunto se actualizó, basta que cualquiera de sus recursos se haya
+        actualizado. Sin embargo, tampoco podemos saber cuántas veces se actualizó realmente.
+      </li>
+    </ul>
 
     <div v-for="sector of listaSectores" :key="`desplegable-${sector}`" class="m-y-4 m-x-3">
       <div class="flex flex-contenido-separado contenedor-sector">
@@ -159,7 +227,10 @@ onMounted(async () => {
         </thead>
         <tbody v-if="data[sector]['show']">
           <tr v-for="fila of data[sector]['tabla']" :key="data[sector]['tabla'].indexOf(fila)">
-            <td v-for="columna in columnasConjuntos" :key="`td-${fila.sector}-${columna}`">
+            <td
+              v-for="columna in Object.keys(dictColumnasConjuntos)"
+              :key="`td-${fila.sector}-${columna}`"
+            >
               <div>{{ fila[columna] }}</div>
             </td>
           </tr>
@@ -234,5 +305,12 @@ td {
   color: white;
   text-align: center;
   margin-left: 4px;
+}
+.highlight {
+  font-weight: bold;
+  border: none;
+}
+li {
+  margin: 8px 16px;
 }
 </style>

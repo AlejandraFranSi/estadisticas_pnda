@@ -4,6 +4,7 @@ import * as d3 from 'd3'
 
 export const useDataStore = defineStore('data', () => {
   const seccion = ref('ptar')
+  const mostrarBarra = ref(false)
   const dataConjuntos = ref([])
   const dataRecursos = ref([])
   const error = ref(null)
@@ -23,6 +24,9 @@ export const useDataStore = defineStore('data', () => {
   const actualizarSeccion = function (nuevaSeccion) {
     seccion.value = nuevaSeccion
   }
+  const toggleSideBar = function () {
+    mostrarBarra.value = !mostrarBarra.value
+  }
   const armarData = async function () {
     try {
       const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recursos`)
@@ -38,6 +42,7 @@ export const useDataStore = defineStore('data', () => {
 
   return {
     seccion,
+    mostrarBarra,
     dataConjuntos,
     dataRecursos,
     error,
@@ -53,5 +58,6 @@ export const useDataStore = defineStore('data', () => {
     actualizarSeccion,
     armarData,
     actualizarInstitucion,
+    toggleSideBar,
   }
 })
