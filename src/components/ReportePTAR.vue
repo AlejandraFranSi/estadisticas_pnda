@@ -47,7 +47,7 @@ async function solicitarDatos() {
     numeralias.value['Recursos creados'] = response_ptar.total_recursos
 
     dataInstitucion.value = JSON.parse(response_ptar.resultados)
-    console.log(dataInstitucion.value)
+
     const datum = {}
     dataInstitucion.value.forEach((d) => {
       const nombre = `${d.clave_sector}-${d.sector}`

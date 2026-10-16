@@ -214,10 +214,12 @@ p {
 
 button {
   background-color: var(--color-secundario-11);
+  box-shadow: none;
 }
 
 button:hover {
   background-color: var(--color-secundario-8);
+  box-shadow: none;
 }
 
 button:disabled {

@@ -12,16 +12,17 @@ async function solicitarDatos() {
   wasFetchigSuccesful.value = null
   try {
     const requestInteracciones = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/correos_trimestrales`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/vinculacion_trimestral`,
     )
-    const responseInteracciones = await requestInteracciones.json()
-    dataInteracciones.value = JSON.parse(responseInteracciones.interacciones)
+    console.log(requestInteracciones)
+    /*const responseInteracciones = await requestInteracciones.json()
+    dataInteracciones.value = JSON.parse(responseInteracciones.interacciones)*/
 
-    const requestRecursos = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/bases_trimestrales`,
+    /*const requestRecursos = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/recursos_trimestrales`,
     )
     const responseRecursos = await requestRecursos.json()
-    dataRecursos.value = JSON.parse(responseRecursos.recursos)
+    dataRecursos.value = JSON.parse(responseRecursos.recursos)*/
     wasFetchigSuccesful.value = true
   } catch (error) {
     console.log(error)
@@ -52,7 +53,7 @@ onMounted(async () => {
       </div>
     </div>
     <div v-if="!isLoading && wasFetchigSuccesful" class="flex" id="contenedor-historico-trimestral">
-      <BarrasReutilizables
+      <!-- <BarrasReutilizables
         class="columna-8"
         :data="dataInteracciones"
         :titulo="'Interacciones con instituciones'"
@@ -61,8 +62,8 @@ onMounted(async () => {
         :x-var-name="'trimestre'"
         :y-var-name="'interacciones'"
         :alto="300"
-      />
-      <BarrasReutilizables
+      /> -->
+      <!-- <BarrasReutilizables
         class="columna-8"
         :data="dataRecursos"
         :titulo="'Recursos subidos'"
@@ -71,7 +72,7 @@ onMounted(async () => {
         :x-var-name="'trimestre'"
         :y-var-name="'recursos'"
         :alto="300"
-      />
+      /> -->
     </div>
   </div>
 </template>
