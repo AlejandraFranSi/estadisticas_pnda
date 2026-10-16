@@ -47,7 +47,7 @@ async function solicitarDatos() {
     numeralias.value['Recursos creados'] = response_ptar.total_recursos
 
     dataInstitucion.value = JSON.parse(response_ptar.resultados)
-
+    console.log(dataInstitucion.value)
     const datum = {}
     dataInstitucion.value.forEach((d) => {
       const nombre = `${d.clave_sector}-${d.sector}`
@@ -83,34 +83,42 @@ async function solicitarDatos() {
         datum[nombre]['conjuntos_plan'] = Number(d.conjuntos_plan)
           ? datum[nombre]['conjuntos_plan'] + Number(d.conjuntos_plan)
           : datum[nombre]['conjuntos_plan']
+
         datum[nombre]['conjuntos_anuales_creados'] = Number(d.conjuntos_anuales_creados)
           ? datum[nombre]['conjuntos_anuales_creados'] + Number(d.conjuntos_anuales_creados)
           : datum[nombre]['conjuntos_anuales_creados']
+
         datum[nombre]['conjuntos_anuales_actualizados'] = Number(d.conjuntos_anuales_actualizados)
           ? datum[nombre]['conjuntos_anuales_actualizados'] +
             Number(d.conjuntos_anuales_actualizados)
           : datum[nombre]['conjuntos_anuales_actualizados']
+
         datum[nombre]['conjuntos_anuales_actualizados_si'] = Number(
           d.conjuntos_anuales_actualizados_si,
         )
           ? datum[nombre]['conjuntos_anuales_actualizados_si'] +
             Number(d.conjuntos_anuales_actualizados_si)
-          : datum[nombre]['conjuntos_anuales_actualizados']
+          : datum[nombre]['conjuntos_anuales_actualizados_si']
+
         datum[nombre]['recursos_plan'] = Number(d.recursos_plan)
           ? datum[nombre]['recursos_plan'] + Number(d.recursos_plan)
           : datum[nombre]['recursos_plan']
+
         datum[nombre]['recursos_anuales_creados'] = Number(d.recursos_anuales_creados)
           ? datum[nombre]['recursos_anuales_creados'] + Number(d.recursos_anuales_creados)
           : datum[nombre]['recursos_anuales_creados']
+
         datum[nombre]['recursos_anuales_actualizados'] = Number(d.recursos_anuales_actualizados)
           ? datum[nombre]['recursos_anuales_actualizados'] + Number(d.recursos_anuales_actualizados)
           : datum[nombre]['recursos_anuales_actualizados']
+
         datum[nombre]['recursos_anuales_actualizados_si'] = Number(
           d.recursos_anuales_actualizados_si,
         )
           ? datum[nombre]['recursos_anuales_actualizados_si'] +
             Number(d.recursos_anuales_actualizados_si)
           : datum[nombre]['recursos_anuales_actualizados_si']
+
         datum[nombre]['tabla'] = [...datum[nombre]['tabla'], d].sort((a, b) =>
           a['nombre_institucion'].localeCompare(b['nombre_institucion']),
         )

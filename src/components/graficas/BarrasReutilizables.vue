@@ -31,6 +31,10 @@ const props = defineProps({
     default: 300,
     type: Number,
   },
+  nota: {
+    default: '',
+    type: String,
+  },
 })
 const dimensiones = ref({
   altoContenedor: props.alto,
@@ -199,10 +203,7 @@ onUnmounted(() => {
         ></g>
       </svg>
       <div class="nota-pie p-x-2">
-        Los trimestres están considerados de la siguiente forma: del 1 de enero al 31 de marzo del
-        correspondiente año; del 1 de abril al 30 de junio del correspondiente año; del 1 de julio
-        al 30 de septiembre del correspondiente año; del 1 de octubre al 31 de diciembre del
-        correspondiente año
+        {{ props.nota }}
       </div>
     </div>
   </div>

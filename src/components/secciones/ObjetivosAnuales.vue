@@ -1,6 +1,7 @@
 <script setup>
 import GraficoDona from '../graficas/GraficoDona.vue'
 import IconoError from '../icons/IconoError.vue'
+import IconoCarga from '../icons/IconoCarga.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 
@@ -28,8 +29,7 @@ onMounted(async () => {
     <h3>Objetivos anuales</h3>
     <div class="flex flex-contenido-centrado" id="spinner-01">
       <div v-if="estaCargando" id="spinner flex-vertical-centrado">
-        <img src="/loading.gif" />
-        <p>Solictando datos</p>
+        <IconoCarga />
       </div>
       <div
         v-if="!estaCargando && error"
