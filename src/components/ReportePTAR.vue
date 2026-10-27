@@ -7,15 +7,17 @@ import IconoError from './icons/IconoError.vue'
 import IconoExpandir from './icons/IconoExpandir.vue'
 import IconoContraer from './icons/IconoContraer.vue'
 import IconoCarga from './icons/IconoCarga.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import notoRegular from '../assets/Noto_Sans/static/NotoSans-Regular.ttf?inline'
 import notoBold from '../assets/Noto_Sans/static/NotoSans-Bold.ttf?inline'
-
+import { useDataStore } from '@/stores/data.js'
 applyPlugin(jsPDF)
+const dataStore = useDataStore()
 
 const hoy = d3.utcFormat('%d-%m-%Y')(new Date())
 const seccionSeleccionada = ref('con_plan')
-const modalInforme = ref(null)
+const modalInformeAbierto = computed(() => dataStore.modalAbierto)
+const nombreReporte = ref(`status-datos-abiertos-${hoy}`)
 const isLoading = ref(null)
 const wasFetchigSuccesful = ref(null)
 const totalRecursos = ref(null)
@@ -314,7 +316,7 @@ const generarReporte = async function () {
     })
 
     // Guardamos el documento
-    doc.save(`reporte-${hoy}.pdf`)
+    doc.save(`${nombreReporte.value}.pdf`)
 
     return 'Exito'
   } catch (error) {
@@ -325,20 +327,60 @@ const generarReporte = async function () {
 const exportar = async function () {
   generandoReporte.value = true
   estatusGeneracionReporte.value = await generarReporte()
-  console.log(estatusGeneracionReporte.value)
   generandoReporte.value = false
 }
 
 function abrirModal() {
-  console.log('Se hizo clic en el modal')
-  modalInforme.value?.abrirModal()
+  estatusGeneracionReporte.value = null
+  dataStore.abrirModal()
+}
+
+function cerrarModal() {
+  dataStore.cerrarModal()
 }
 onMounted(async () => {
+  cerrarModal()
   await solicitarDatos()
   armarDataConPlan()
 })
 </script>
 <template>
+  <div class="m-1 p-4 modal-personalizado" v-if="modalInformeAbierto">
+    <h5>Exportar reporte</h5>
+    <SisdaiCampoBase
+      etiqueta="Ingresa un nombre para el reporte generado"
+      :es_obligatorio="true"
+      :es_etiqueta_visible="true"
+      v-model="nombreReporte"
+      texto_ayuda="Nombre del archivo"
+    />
+    <IconoCarga class="m-y-2" v-if="generandoReporte" />
+    <div
+      v-if="estatusGeneracionReporte && estatusGeneracionReporte == 'Exito' && !generandoReporte"
+      class="p-2 m-y-1 flex flex-contenido-centrado texto-color-confirmacion fondo-color-confirmacion borde borde-redondeado-8"
+    >
+      Reporte generado exitosamente.
+    </div>
+    <div
+      v-if="estatusGeneracionReporte && estatusGeneracionReporte != 'Exito' && !generandoReporte"
+      class="m-y-1 p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
+    >
+      Ocurrio un error
+    </div>
+    <div class="flex flex-contenido-final">
+      <button class="boton-secundario" @click="cerrarModal" :disabled="generandoReporte">
+        Cerrar
+      </button>
+      <button
+        class="boton-primario"
+        @click="exportar"
+        :disabled="generandoReporte || estatusGeneracionReporte == 'Exito'"
+      >
+        Exportar
+      </button>
+    </div>
+  </div>
+
   <div class="flex flex-contenido-centrado" id="spinner-01">
     <div v-if="isLoading" id="spinner flex-vertical-centrado" class="m-y-8">
       <IconoCarga />
@@ -352,7 +394,7 @@ onMounted(async () => {
       Ocurrió un error
     </div>
   </div>
-  <div>El modal</div>
+
   <div class="p-x-3" v-if="wasFetchigSuccesful && !isLoading">
     <h1>Plataforma Nacional de Datos Abiertos</h1>
     <h2>Estadísticas</h2>
@@ -476,7 +518,13 @@ onMounted(async () => {
 </template>
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-
+.modal-personalizado {
+  background-color: var(--color-neutro-1);
+  position: fixed;
+  z-index: 5;
+  left: 30vw;
+  top: 15vh;
+}
 h1,
 h2,
 h3 {

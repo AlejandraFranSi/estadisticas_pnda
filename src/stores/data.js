@@ -8,6 +8,7 @@ export const useDataStore = defineStore('data', () => {
   const dataConjuntos = ref([])
   const dataRecursos = ref([])
   const error = ref(null)
+  const modalAbierto = ref(true)
   const fechaInicio = ref('2025-06-01')
   const fechaFinal = ref('2026-09-21')
   const totalConjuntos = computed(() => d3.format(',')(dataConjuntos.value.length))
@@ -18,6 +19,12 @@ export const useDataStore = defineStore('data', () => {
   const totalEtiquetas = computed(() => d3.format(',')(setEtiquetas.value.length))
   const institucionSeleccionada = ref(null)
 
+  const abrirModal = function () {
+    modalAbierto.value = true
+  }
+  const cerrarModal = function () {
+    modalAbierto.value = false
+  }
   const actualizarInstitucion = function (nuevaInst) {
     institucionSeleccionada.value = nuevaInst
   }
@@ -41,6 +48,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
+    modalAbierto,
     seccion,
     mostrarBarra,
     dataConjuntos,
@@ -59,5 +67,7 @@ export const useDataStore = defineStore('data', () => {
     armarData,
     actualizarInstitucion,
     toggleSideBar,
+    abrirModal,
+    cerrarModal,
   }
 })

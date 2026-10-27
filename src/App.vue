@@ -3,14 +3,23 @@ import ElEncabezado from './components/base/ElEncabezado.vue'
 import BarraLateral from './components/base/BarraLateral.vue'
 import ReporteNosotros from './components/ReporteNosotros.vue'
 import ReportePTAR from './components/ReportePTAR.vue'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useDataStore } from '@/stores/data.js'
 
 const dataStore = useDataStore()
 const mostrarSidebar = computed(() => dataStore.mostrarBarra)
+const cualquierModalAbierto = computed(() => dataStore.modalAbierto)
+watch(
+  cualquierModalAbierto,
+  (valor) => {
+    document.body.classList.toggle('overflow-hidden', valor)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
+  <div class="fondo-negro" v-if="cualquierModalAbierto" @click="dataStore.cerrarModal"></div>
   <header>
     <ElEncabezado class="header" />
   </header>
@@ -57,6 +66,21 @@ body {
   background-color: var(--color-neutro-1);
   font-size: 16px;
 }
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.fondo-negro {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  height: 100vh;
+  width: 100vw;
+  opacity: 0.7;
+  background-color: black;
+  z-index: 4;
+}
+
 .header {
   position: fixed;
   top: 0px;
