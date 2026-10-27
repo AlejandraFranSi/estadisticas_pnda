@@ -398,11 +398,20 @@ onMounted(async () => {
   <div class="p-x-3" v-if="wasFetchigSuccesful && !isLoading">
     <h1>Plataforma Nacional de Datos Abiertos</h1>
     <h2>Estadísticas</h2>
-    <div class="m-y-5 contenedor-numeralias flex flex-contenido-centrado">
-      <div v-for="opcion of Object.keys(numeralias)" :key="opcion" class="tarjeta columna-3">
-        <div class="tarjeta-cuerpo p-y-0">
-          <div class="numeralia m-y-0 p-y-0">{{ d3.format(',')(numeralias[opcion]) }}</div>
-          <div class="etiqueta-numeralia m-y-0 p-y-0">{{ opcion }}</div>
+    <div class="m-y-5 flex flex-contenido-centrado contenedor-numeralias">
+      <div
+        v-for="opcion of Object.keys(numeralias)"
+        :key="opcion"
+        class="contenedor-tarjeta p-x-2"
+        :class="
+          opcion == 'Instituciones' || opcion == 'Recursos en plan' ? 'con-borde' : 'sin-borde'
+        "
+      >
+        <div class="tarjeta">
+          <div class="tarjeta-cuerpo p-y-0">
+            <div class="numeralia m-y-0 p-y-0">{{ d3.format(',')(numeralias[opcion]) }}</div>
+            <div class="etiqueta-numeralia m-y-0 p-y-0">{{ opcion }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -518,13 +527,7 @@ onMounted(async () => {
 </template>
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-.modal-personalizado {
-  background-color: var(--color-neutro-1);
-  position: fixed;
-  z-index: 5;
-  left: 30vw;
-  top: 15vh;
-}
+
 h1,
 h2,
 h3 {
@@ -532,6 +535,24 @@ h3 {
 }
 .tarjeta {
   box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.25) !important;
+}
+
+.modal-personalizado {
+  background-color: var(--color-neutro-1);
+  position: fixed;
+  z-index: 5;
+  left: 30vw;
+  top: 15vh;
+}
+
+.contenedor-numeralias {
+  gap: 0px;
+}
+.contenedor-tarjeta {
+  width: 20%;
+}
+.con-borde {
+  border-right: 2px solid var(--color-neutro-2);
 }
 .numeralia {
   font-size: 55px;
