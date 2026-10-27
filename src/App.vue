@@ -31,8 +31,8 @@ const mostrarSidebar = computed(() => dataStore.mostrarBarra)
 
 :root {
   --color-secundario-1: #fff6f7;
-  --color-secundario-2: #eed3da;
-  --color-secundario-3: #deafbc;
+  --color-secundario-2: #fdf0f4;
+  --color-secundario-3: #f1cdd8;
   --color-secundario-4: #cd8c9f;
   --color-secundario-5: #bc6982;
   --color-secundario-6: #ac4564;

@@ -62,7 +62,7 @@ const escalaX = ref(null)
 const escalaY = ref(null)
 const escalaColor = ref(null)
 const stackedData = ref(null)
-const colorList = ['#611232', '#002F29', '#A57F2C', '#aaaaaa']
+const colorList = ['#611232', '#C19433', '#004D40', '#aaaaaa']
 
 function dimensionarGrafica() {
   dimensiones.value.anchoContenedor = contenedorSVG.value.clientWidth
@@ -121,7 +121,6 @@ function dibujarAreas() {
         enter
           .append('path')
           .attr('fill', (d) => escalaColor.value(d.key))
-          .attr('opacity', 0.8)
           .attr('d', (d) => {
             return d3
               .area()
@@ -136,7 +135,6 @@ function dibujarAreas() {
       (update) => {
         update
           .attr('fill', (d) => escalaColor.value(d.key))
-          .attr('opacity', 0.8)
           .attr('d', (d) => {
             return d3
               .area()

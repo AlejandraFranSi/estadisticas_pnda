@@ -190,8 +190,8 @@ const exportar = async function () {
   <div class="p-x-4 p-y-2">
     <ObjetivosAnuales />
     <HistoricoTrimestral />
-    <!--<InformacionDiaria />
-    <RelacionBases @tabla-construida="establecerDataTabla" />
+    <InformacionDiaria />
+    <!--<RelacionBases @tabla-construida="establecerDataTabla" />
     <div class="button-actions m-y-3 flex flex-contenido-final">
       <button class="boton-primario" @click="modalExportacion?.abrirModal">
         Exportar como pdf

@@ -29,8 +29,9 @@ async function solicitarDatos() {
   wasFetchigSuccesful.value = null
   try {
     const requestRecursos = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/categorias_bases_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/frecuencia_publicacion?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
     )
+
     const responseRecursos = await requestRecursos.json()
     datosRecursos.value = JSON.parse(responseRecursos.data)
     categoriasRecursos.value = [...responseRecursos.top_categorias, 'Otras']
@@ -38,13 +39,16 @@ async function solicitarDatos() {
     promedioRecursos.value = d3.format('.2f')(responseRecursos.promedio)
     desviacionRecursos.value = d3.format('.2f')(responseRecursos.desviacion)
     varianzaRecursos.value = d3.format('.2f')(responseRecursos.varianza)
+    console.log(responseRecursos)
 
     const requestInteracciones = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/motivo_interacciones_trimestrales?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/motivo_vinculacion?inicio=${fechaInicio.value}&fin=${fechaFinal.value}`,
     )
     const responseInteracciones = await requestInteracciones.json()
+    console.log(responseInteracciones)
     datosInteracciones.value = JSON.parse(responseInteracciones.data)
     categoriasInteracciones.value = [...responseInteracciones.tipo_interacciones]
+    console.log(categoriasInteracciones.value)
     maximoInteracciones.value = responseInteracciones.maximo
     promedioInteracciones.value = d3.format('.2f')(responseInteracciones.promedio)
     desviacionInteracciones.value = d3.format('.2f')(responseInteracciones.desviacion)
@@ -66,7 +70,7 @@ watch([fechaInicio, fechaFinal], async () => {
 </script>
 <template>
   <div>
-    <h4>Información diaria</h4>
+    <h3>Información diaria</h3>
     <div class="flex flex-contenido-centrado" id="spinner-01">
       <div v-if="isLoading" id="spinner flex-vertical-centrado">
         <img src="/loading.gif" />
@@ -86,7 +90,7 @@ watch([fechaInicio, fechaFinal], async () => {
         <div class="contenedor-numeralias columna-3">
           <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioRecursos" />
           <TarjetaNumeralia :titulo="'Varianza'" :valor="varianzaRecursos" />
-          <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacionRecursos" />
+          <TarjetaNumeralia :titulo="'Desviación'" :valor="desviacionRecursos" />
         </div>
         <div class="areas-apiladas columna-13">
           <AreasApiladas
@@ -97,7 +101,7 @@ watch([fechaInicio, fechaFinal], async () => {
             :x-var="'fecha'"
             :y-max="maximoRecursos"
             :leyenda-x="'Fecha'"
-            :leyenda-y="'Bases subidas'"
+            :leyenda-y="'No. recursos'"
           />
         </div>
       </div>
@@ -108,22 +112,27 @@ watch([fechaInicio, fechaFinal], async () => {
             :titulo="'Información diaria de interacciones'"
             :data="datosInteracciones"
             :categorias="categoriasInteracciones"
-            :x-var="'fecha_evento'"
+            :x-var="'fecha'"
             :y-max="maximoInteracciones"
             :leyenda-x="'Fecha'"
-            :leyenda-y="'Interacciones tenidas'"
+            :leyenda-y="'No. interacciones'"
           />
         </div>
         <div class="contenedor-numeralias columna-3">
           <TarjetaNumeralia :titulo="'Promedio Diario'" :valor="promedioInteracciones" />
           <TarjetaNumeralia :titulo="'Varianza'" :valor="varianzaInteracciones" />
-          <TarjetaNumeralia :titulo="'Desviación Estándar'" :valor="desviacionInteracciones" />
+          <TarjetaNumeralia :titulo="'Desviación'" :valor="desviacionInteracciones" />
         </div>
       </div>
     </div>
   </div>
 </template>
 <style scoped>
+h1,
+h2,
+h3 {
+  color: var(--color-encabezados);
+}
 @media (max-width: 900px) {
   .areas-apiladas {
     max-width: 100%!;
