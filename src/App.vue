@@ -51,8 +51,10 @@ watch(
   --color-secundario-10: #701637;
   --color-secundario-11: #611232;
   --color-secundario-12: #4b0c27;
-  --color-primario-3: #a57f2c;
-  --color-primario-4: #e6d194;
+  --color-primario-1: #a57f2c;
+  --color-primario-2: #e6d194;
+  --color-primario-3: #9b2247;
+  --color-primario-4: #ac4564;
   --color-neutro-1: #f7f7f9;
   --color-neutro-2: #e1e1e8;
   --color-neutro-3: #bdbdc1;

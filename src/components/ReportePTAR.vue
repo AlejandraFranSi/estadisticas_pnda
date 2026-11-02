@@ -17,7 +17,7 @@ const dataStore = useDataStore()
 const hoy = d3.utcFormat('%d-%m-%Y')(new Date())
 const seccionSeleccionada = ref('con_plan')
 const modalInformeAbierto = computed(() => dataStore.modalAbierto)
-const nombreReporte = ref(`status-datos-abiertos-${hoy}`)
+const nombreReporte = ref(`estatus-datos-abiertos-${hoy}`)
 const isLoading = ref(null)
 const wasFetchigSuccesful = ref(null)
 const totalRecursos = ref(null)
@@ -204,7 +204,7 @@ const generarReporte = async function () {
     },
     padding: 8,
     margins: { top: 38, left: 20, right: 20, bottom: 30 },
-    fonts: { default: 12, small: 8, medium: 10, large: 16, subtitle: 20, title: 24 },
+    fonts: { default: 12, small: 8, medium: 10, large: 15, subtitle: 18, title: 22 },
   }
 
   // Identificamos los contenedores de gráficos que usaremos
@@ -238,24 +238,41 @@ const generarReporte = async function () {
     // 5. Agregamos el titlulo
     doc.setTextColor(67, 67, 67)
     doc.setFontSize(config.fonts.title)
-    doc.text('Publicación de bases de datos por sector de la APF', config.margins.left, posicionY, {
-      maxWidth: 170,
-    })
-    posicionY += (6 * config.padding) / 2
+    doc.text(
+      'Publicación de bases de datos \r\npor sector de la APF',
+      config.margins.left,
+      posicionY,
+      {
+        maxWidth: 170,
+      },
+    )
+    //posicionY += (6 * config.padding) / 2
+    posicionY += 2 * config.padding
     // 6. Agregamos el subtitulo
-    doc.setFontSize(config.fonts.subtitle)
-    doc.text('Plataforma Nacional de Datos Abiertos', config.margins.left, posicionY)
-    posicionY += config.padding
-    // 7. Agregamos el encabezado
+    doc.setTextColor(102, 102, 102)
     doc.setFontSize(config.fonts.large)
-    doc.text('2026', config.margins.left, posicionY)
+    doc.text('Plataforma Nacional de Datos Abiertos', config.margins.left, posicionY)
+    posicionY += config.padding / 4
+    // 7. Agregamos el encabezado
+    const ultimaActualización = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
+      <i>Ultima actualización: ${hoy}</i>
+    </p>`
+    await doc.html(ultimaActualización, {
+      x: config.margins.left,
+      y: posicionY,
+      width: 170,
+      windowWidth: 650,
+    })
     posicionY += config.padding
+
     // 8. Agregamos los párrafos
     doc.setFont('NotoSans')
+    doc.setTextColor(67, 67, 67)
     const parrafo1 = renderizar(
       `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
-     Los datos reportados se obtuvieron del sistema de gestión de datos CKAN <i>(Comprehensive Knowledge Archive Network)</i> vinculado al Portal de Datos Abiertos.
-     Hasta el día ${hoy} se han publicado <b>{{recursos}}</b> bases de datos en <b>{{conjuntos}}</b> conjuntos de datos.
+     Los siguientes datos se obtuvieron del sistema de gestión de datos CKAN, que alimenta la 
+     Plataforma Nacional de Datos Abiertos. De marzo de 2024 a octubre de 2026 hay publicadas
+      <b>{{recursos}}</b> bases de datos en <b>{{conjuntos}}</b> conjuntos de datos.
     </p>`,
       {
         recursos: d3.format(',')(totalRecursos.value),
@@ -268,15 +285,15 @@ const generarReporte = async function () {
       width: 170,
       windowWidth: 650,
     })
-    posicionY += (4 * config.padding) / 2
-
+    posicionY += 2 * config.padding
     const parrafo2 = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
-     El total de bases de datos publicadas reportado en la tabla a continuación considera tanto la creación 
-     de nuevas bases de datos, como la sobreescritura de las mismas; esto quiere decir que un archivo 
-     reemplaza al anterior con la finalidad de actualizarlo. Asimismo, la estructura del CKAN impide el 
-     registro de todas las veces que se lleva a cabo el proceso de sobreescritura y basta con que se abra la 
-     sección de edición de una base para que actualice la fecha de última modificación de la misma. En 
-     consecuencia, <b>las métricas no reflejan la totalidad del trabajo realizado</b>.
+     En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se contabilizan las bases de datos 
+     pertenecientes a instituciones que publicaron su Plan de apertura de datos. <s>Los datos consideran 
+     la publicación de nuevas bases de datos así como la sobreescritura de las mismas, es decir, cuando en el 
+     proceso de actualización una base reemplaza a su versión anterior. Cabe mencionar que la estructura del 
+     CKAN impide tener registro de dos tipos de actualización: 1)sobreescritura de las bases de datos y 
+     2)actualización de los metadatos de las bases de datos.</s> En consecuencia, <b>las métricas no reflejan 
+      la totalidad del trabajo realizado</b>.
     </p>`
 
     await doc.html(parrafo2, {
@@ -286,16 +303,32 @@ const generarReporte = async function () {
       windowWidth: 650,
     })
 
-    posicionY += (7 * config.padding) / 2
+    posicionY += 5 * config.padding
+    // 9. Agregamos el título de la tabla
+    doc.setFont('NotoSans', 'bold')
+    doc.setTextColor(67, 67, 67)
+    doc.setFontSize(14)
+    doc.text(
+      'Número de bases de datos publicadas en la PNDA por sector',
+      config.margins.left,
+      posicionY,
+    )
+    // 10. Agregamos la tabla
+    doc.setFont('NotoSans')
     doc.setFontSize(config.fonts.default)
+    posicionY += config.padding / 2
     doc.autoTable({
       startY: posicionY,
       html: '#tabla-exportable',
       headStyles: {
         fillColor: [97, 18, 50],
         textColor: [255, 255, 255],
+        lineColor: [255, 255, 255],
         font: 'NotoSans',
         fontSize: 8,
+        lineWidth: 0.3,
+        halign: 'center',
+        valign: 'middle',
       },
       margin: {
         top: config.margins.top,
@@ -313,6 +346,19 @@ const generarReporte = async function () {
           doc.addImage(img, 'PNG', 0, 0, config.page.width, config.page.height)
         }
       },
+    })
+    const pageHeight = doc.internal.pageSize.getHeight()
+    posicionY = pageHeight + doc.lastAutoTable.finalY
+
+    const pieTabla = `<p style="font-family: 'Noto Sans', sans-serif; font-size:10px; line-height: 1.2, width:650px">
+     **<b>En plan</b> se refiere a datos que no cambian durante un año.
+      <b>Publicados</b> se refiere a información que está en constante cambio.`
+
+    await doc.html(pieTabla, {
+      x: config.margins.left,
+      y: posicionY,
+      width: 170,
+      windowWidth: 650,
     })
 
     // Guardamos el documento
@@ -421,9 +467,7 @@ onMounted(async () => {
       publicados consideran entradas nuevas y actualizaciones.
     </p>
     <div class="m-y-3 flex flex-contenido-centrado">
-      <div
-        class="columna-12 p-3 texto-color-informacion fondo-color-informacion borde borde-redondeado-8"
-      >
+      <div class="columna-12 p-3 cuadro-informacion">
         La información de actualización de conjunto y recursos es únicamente una aproximación debido
         a que el CKAN únicamente ofrece la fecha de última modificación.
 
@@ -457,6 +501,10 @@ onMounted(async () => {
     <img id="plantilla" src="/plantilla.png" style="display: none" />
     <table v-if="dataConPlan" class="tabla-exportable" :id="`tabla-exportable`" v-show="false">
       <thead class="header-tabla">
+        <tr>
+          <th colspan="4">En plan</th>
+          <th colspan="3">Publicados</th>
+        </tr>
         <tr>
           <th v-for="columna of encabezadosTablaExportable" :key="columna">{{ columna }}</th>
         </tr>
@@ -571,6 +619,13 @@ h3 {
   text-align: center;
 }
 
+.cuadro-informacion {
+  border: 1px solid var(--color-neutro-7);
+  border-radius: 8px;
+  background-color: var(--color-neutro-2);
+  color: var(--color-neutro-7);
+}
+
 .contenedor-seccion {
   gap: 2px;
   border-bottom: 2px solid var(--color-neutro-2);
@@ -621,7 +676,9 @@ thead {
   background-color: var(--color-neutro-1);
   border-bottom: 1px solid var(--color-neutro-2);
 }*/
-
+th {
+  text-align: center;
+}
 .total-tabla {
   padding: 4px;
   border-radius: 8px;
