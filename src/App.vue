@@ -56,7 +56,7 @@ watch(
   --color-primario-3: #9b2247;
   --color-primario-4: #ac4564;
   --color-neutro-1: #f7f7f9;
-  --color-neutro-2: #e1e1e8;
+  --color-neutro-2: #e9e9f0;
   --color-neutro-3: #bdbdc1;
   --color-neutro-4: #98989a;
   --color-neutro-5: #7d7c81;

@@ -15,6 +15,7 @@ applyPlugin(jsPDF)
 const dataStore = useDataStore()
 
 const hoy = d3.utcFormat('%d-%m-%Y')(new Date())
+const anio = 2026
 const seccionSeleccionada = ref('con_plan')
 const modalInformeAbierto = computed(() => dataStore.modalAbierto)
 const nombreReporte = ref(`estatus-datos-abiertos-${hoy}`)
@@ -23,21 +24,42 @@ const wasFetchigSuccesful = ref(null)
 const totalRecursos = ref(null)
 const diferenciaRecursos = 74
 const totalConjuntos = ref(null)
-const dataConPlan = ref(null)
-const dataSinPlan = ref(null)
-const data = ref()
-const listaSectores = ref([])
+const data = ref({
+  con_plan: [],
+  sin_plan: [],
+})
 const generandoReporte = ref(null)
 const estatusGeneracionReporte = ref(null)
-const encabezadosTablaExportable = ref([
-  'Sector',
-  'Número de instituciones',
-  'Conjuntos en plan',
-  'Recursos en plan',
-  'Conjuntos publicados',
-  'Recursos publicados',
-  'Porcentaje',
-])
+const dictColumnas = {
+  sector_compuesto: 'Sector',
+  nombre_institucion: 'Instituciones',
+  conjuntos_en_plan: 'Conjuntos en plan',
+  recursos_en_plan: 'Recursos en plan',
+  conjuntos_creados_ckan: 'Conjuntos publicados',
+  recursos_creados_ckan: 'Recursos publicados',
+  porcentaje: 'Porcentaje',
+}
+const encabezados = {
+  exportable: [
+    'sector_compuesto',
+    'nombre_institucion',
+    'conjuntos_en_plan',
+    'recursos_en_plan',
+    'conjuntos_creados_ckan',
+    'recursos_creados_ckan',
+    'porcentaje',
+  ],
+  con_plan: [
+    'nombre_institucion',
+    'conjuntos_en_plan',
+    'recursos_en_plan',
+    'conjuntos_creados_ckan',
+    'recursos_creados_ckan',
+    'porcentaje',
+  ],
+  sin_plan: ['nombre_institucion', 'conjuntos_creados_ckan', 'recursos_creados_ckan'],
+}
+
 const numeralias = ref({
   Instituciones: 0,
   'Conjuntos en plan': 0,
@@ -46,143 +68,58 @@ const numeralias = ref({
   'Recursos publicados': 0,
 })
 
-const dictColumnasConjuntos = {
-  con_plan: {
-    nombre_institucion: 'Instituciones',
-    conjuntos_plan: 'Conjuntos en plan',
-    conjuntos_creados_ckan: 'Conjuntos publicados',
-    recursos_plan: 'Recursos en plan',
-    suma_recursos: 'Recursos publicados',
-    porcentaje_recursos: 'Porcentaje',
-  },
-  sin_plan: {
-    nombre_institucion: 'Instituciones',
-    conjuntos_creados_ckan: 'Conjuntos publicados',
-    suma_recursos: 'Recursos publicados',
-  },
-}
-
-function armarDataConPlan() {
-  const datum = {}
-  dataConPlan.value.forEach((d) => {
-    const nombre = `${d.clave_sector}-${d.sector}`
-    if (!Object.keys(datum).includes(nombre)) {
-      datum[nombre] = {
-        clave_sector: d.clave_sector,
-        nombre_institucion: 1,
-        conjuntos_plan: Number(d.conjuntos_plan) ? Number(d.conjuntos_plan) : 0,
-        conjuntos_creados_ckan: Number(d.conjuntos_creados_ckan)
-          ? Number(d.conjuntos_creados_ckan)
-          : 0,
-        recursos_plan: Number(d.recursos_plan) ? Number(d.recursos_plan) : 0,
-        suma_recursos: Number(d.suma_recursos) ? Number(d.suma_recursos) : 0,
-        porcentaje_recursos: Number(d.porcentaje_recursos)
-          ? d3.format(',.2f')(Number(d.porcentaje_recursos))
-          : 0,
-        tabla: [d],
-        show: false,
-      }
-    } else {
-      datum[nombre]['nombre_institucion'] += 1
-      datum[nombre]['conjuntos_plan'] = Number(d.conjuntos_plan)
-        ? datum[nombre]['conjuntos_plan'] + Number(d.conjuntos_plan)
-        : datum[nombre]['conjuntos_plan']
-
-      datum[nombre]['conjuntos_creados_ckan'] = Number(d.conjuntos_creados_ckan)
-        ? datum[nombre]['conjuntos_creados_ckan'] + Number(d.conjuntos_creados_ckan)
-        : datum[nombre]['conjuntos_creados_ckan']
-
-      datum[nombre]['recursos_plan'] = Number(d.recursos_plan)
-        ? datum[nombre]['recursos_plan'] + Number(d.recursos_plan)
-        : datum[nombre]['recursos_plan']
-
-      datum[nombre]['suma_recursos'] = Number(d.suma_recursos)
-        ? datum[nombre]['suma_recursos'] + Number(d.suma_recursos)
-        : datum[nombre]['suma_recursos']
-
-      datum[nombre]['porcentaje_recursos'] = d3.format(',.2f')(
-        (Number(datum[nombre]['suma_recursos']) / Number(datum[nombre]['recursos_plan'])) * 100,
-      )
-
-      datum[nombre]['tabla'] = [...datum[nombre]['tabla'], d].sort((a, b) =>
-        a['nombre_institucion'].localeCompare(b['nombre_institucion']),
-      )
-    }
-  })
-  listaSectores.value = Object.keys(datum).sort((a, b) => a.localeCompare(b))
-  data.value = datum
-}
-
-function armarDataSinPlan() {
-  const datum = {}
-  dataSinPlan.value.forEach((d) => {
-    const nombre = `${d.clave_sector}-${d.sector}`
-    if (!Object.keys(datum).includes(nombre)) {
-      datum[nombre] = {
-        clave_sector: d.clave_sector,
-        nombre_institucion: 1,
-        conjuntos_creados_ckan: Number(d.conjuntos_creados_ckan)
-          ? Number(d.conjuntos_creados_ckan)
-          : 0,
-        suma_recursos: Number(d.suma_recursos) ? Number(d.suma_recursos) : 0,
-        tabla: [d],
-        show: false,
-      }
-    } else {
-      datum[nombre]['nombre_institucion'] += 1
-
-      datum[nombre]['conjuntos_creados_ckan'] = Number(d.conjuntos_creados_ckan)
-        ? datum[nombre]['conjuntos_creados_ckan'] + Number(d.conjuntos_creados_ckan)
-        : datum[nombre]['conjuntos_creados_ckan']
-
-      datum[nombre]['suma_recursos'] = Number(d.suma_recursos)
-        ? datum[nombre]['suma_recursos'] + Number(d.suma_recursos)
-        : datum[nombre]['suma_recursos']
-
-      datum[nombre]['tabla'] = [...datum[nombre]['tabla'], d].sort((a, b) =>
-        a['nombre_institucion'].localeCompare(b['nombre_institucion']),
-      )
-    }
-  })
-  listaSectores.value = Object.keys(datum).sort((a, b) => a.localeCompare(b))
-  data.value = datum
-}
-
-function actualizarSeccion(nv) {
-  seccionSeleccionada.value = nv
-  if (nv == 'sin_plan') {
-    armarDataSinPlan()
-  } else if (nv == 'con_plan') {
-    armarDataConPlan()
-  }
-}
-
 async function solicitarDatos() {
   isLoading.value = true
 
   wasFetchigSuccesful.value = null
   try {
+    // Solicitamos el agregado
     const request = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/recursos`)
     const response = await request.json()
     totalConjuntos.value = response.conjuntos.length
     totalRecursos.value = response.recursos.length + diferenciaRecursos
+
+    // Solicitamos la información correspondiente al año de interés
     const request_ptar = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/publicacion_instituciones?anio=2026`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/publicacion_instituciones_unicos?anio=2026`,
     )
     const response_ptar = await request_ptar.json()
-    numeralias.value['Instituciones'] = response_ptar.instituciones
-    numeralias.value['Conjuntos en plan'] = response_ptar.conjuntos_plan
-    numeralias.value['Conjuntos publicados'] = response_ptar.total_conjuntos
-    numeralias.value['Recursos en plan'] = response_ptar.recursos_plan
-    numeralias.value['Recursos publicados'] = response_ptar.total_recursos
-    dataConPlan.value = JSON.parse(response_ptar.resultados_con_plan)
-    dataSinPlan.value = JSON.parse(response_ptar.resultados_sin_plan)
+    numeralias.value['Instituciones'] = response_ptar.num_instituciones
+    numeralias.value['Conjuntos en plan'] = response_ptar.num_conjuntos_plan
+    numeralias.value['Recursos en plan'] = response_ptar.num_recursos_plan
+    numeralias.value['Conjuntos publicados'] = response_ptar.num_conjuntos_publicados
+    numeralias.value['Recursos publicados'] = response_ptar.num_recursos_publicados
+
+    // Constuimos la información anidada para las tablas de instituciones con plan
+    data.value['con_plan'] = JSON.parse(response_ptar.sectorial_con_plan)
+    const datumConPlan = JSON.parse(response_ptar.resultados_con_plan)
+    data.value['con_plan'].forEach((d) => {
+      d['data'] = datumConPlan
+        .filter((m) => m.clave_sector == d.clave_sector)
+        .sort((a, b) => a.nombre_institucion.localeCompare(b.nombre_institucion))
+      d['desplegado'] = false
+    })
+
+    // Constuimos la información anidada para las tablas de instituciones con plan
+    data.value['sin_plan'] = JSON.parse(response_ptar.sectorial_sin_plan)
+    const datumSinPlan = JSON.parse(response_ptar.resultados_sin_plan)
+    data.value['sin_plan'].forEach((d) => {
+      d['data'] = datumSinPlan
+        .filter((m) => m.clave_sector == d.clave_sector)
+        .sort((a, b) => a.nombre_institucion.localeCompare(b.nombre_institucion))
+      d['desplegado'] = false
+    })
+    console.log(data.value)
     wasFetchigSuccesful.value = true
   } catch (error) {
     console.log(error)
     wasFetchigSuccesful.value = false
   }
   isLoading.value = false
+}
+
+function actualizarSeccion(nv) {
+  seccionSeleccionada.value = nv
 }
 
 function formatearTexto(str) {
@@ -270,7 +207,7 @@ const generarReporte = async function () {
     doc.setTextColor(67, 67, 67)
     const parrafo1 = renderizar(
       `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
-     Los siguientes datos se obtuvieron del sistema de gestión de datos CKAN, que alimenta la 
+     Los siguientes datos se obtuvieron del sistema de gestión de datos CKAN, que alimenta la
      Plataforma Nacional de Datos Abiertos. De marzo de 2024 a octubre de 2026 hay publicadas
       <b>{{recursos}}</b> bases de datos en <b>{{conjuntos}}</b> conjuntos de datos.
     </p>`,
@@ -286,14 +223,23 @@ const generarReporte = async function () {
       windowWidth: 650,
     })
     posicionY += 2 * config.padding
-    const parrafo2 = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
-     En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se contabilizan las bases de datos 
-     pertenecientes a instituciones que publicaron su Plan de apertura de datos. <s>Los datos consideran 
-     la publicación de nuevas bases de datos así como la sobreescritura de las mismas, es decir, cuando en el 
-     proceso de actualización una base reemplaza a su versión anterior. Cabe mencionar que la estructura del 
-     CKAN impide tener registro de dos tipos de actualización: 1)sobreescritura de las bases de datos y 
-     2)actualización de los metadatos de las bases de datos.</s> En consecuencia, <b>las métricas no reflejan 
+    /*const parrafo2 = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
+     En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se contabilizan las bases de datos
+     pertenecientes a instituciones que publicaron su Plan de apertura de datos. <s>Los datos consideran
+     la publicación de nuevas bases de datos así como la sobreescritura de las mismas, es decir, cuando en el
+     proceso de actualización una base reemplaza a su versión anterior. Cabe mencionar que la estructura del
+     CKAN impide tener registro de dos tipos de actualización: 1)sobreescritura de las bases de datos y
+     2)actualización de los metadatos de las bases de datos.</s> En consecuencia, <b>las métricas no reflejan
       la totalidad del trabajo realizado</b>.
+    </p>`*/
+    const parrafo2 = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
+     En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se contabilizan las bases de datos
+     pertenecientes a instituciones que publicaron su Plan de apertura de datos. Los valores de las columnas Conjuntos en plan y Recursos
+      en plan consideran solo una vez las bases de datos cuyos nombres se repiten en el Plan de apertura de datos al
+      que pertenecen; dichas repeticiones se deben a que la información de la base será actualizada a lo largo del
+      año. Sin embargo, hay ocasiones en las que se crea un nuevo recurso en el CKAN para agregar la información actualizada en
+      lugar de reemplazar el archivo anterior, lo que impide calcular correctamente la relación entre lo que los Planes de
+      apertura de datos indican y lo que se publica en la PNDA.
     </p>`
 
     await doc.html(parrafo2, {
@@ -387,7 +333,7 @@ function cerrarModal() {
 onMounted(async () => {
   cerrarModal()
   await solicitarDatos()
-  armarDataConPlan()
+  //armarDataConPlan()
 })
 </script>
 <template>
@@ -444,6 +390,13 @@ onMounted(async () => {
   <div class="p-x-3" v-if="wasFetchigSuccesful && !isLoading">
     <h1>Plataforma Nacional de Datos Abiertos</h1>
     <h2>Estadísticas</h2>
+    <p>
+      Los siguientes datos se obtuvieron del sistema de gestión de datos CKAN, que alimenta la
+      Plataforma Nacional de Datos Abiertos. Se compara información obtenida de los
+      <b>Planes de Apertura de Datos</b> de cada institución con los Conjuntos y Bases de datos
+      <b>publicadas durante el {{ anio }}</b
+      >.
+    </p>
     <div class="m-y-5 flex flex-contenido-centrado contenedor-numeralias">
       <div
         v-for="opcion of Object.keys(numeralias)"
@@ -463,18 +416,17 @@ onMounted(async () => {
     </div>
     <h3>Publicación de datos por sector</h3>
     <p>
-      La información a continuación se obtuvo exclusivamente del CKAN. Los conjuntos y recursos
-      publicados consideran entradas nuevas y actualizaciones.
+      Los valores de las columnas <b>Conjuntos en plan</b> y <b>Recursos en plan</b> consideran solo
+      una vez las bases de datos cuyos nombres se repiten en el Plan de apertura de datos al que
+      pertenecen; dichas repeticiones se deben a que la información de la base será actualizada a lo
+      largo del año.
     </p>
     <div class="m-y-3 flex flex-contenido-centrado">
-      <div class="columna-12 p-3 cuadro-informacion">
-        La información de actualización de conjunto y recursos es únicamente una aproximación debido
-        a que el CKAN únicamente ofrece la fecha de última modificación.
-
-        <span v-if="seccionSeleccionada == 'con_plan'">
-          <br /><br />Tampoco podemos tener certeza de que los recursos publicados y actualizados
-          corresponan con lo citado en los Planes de Apertura Institucionales</span
-        >
+      <div class="columna-12 p-3 cuadro-informacion" v-if="seccionSeleccionada == 'con_plan'">
+        Hay ocasiones en las que se crea un nuevo recurso en el CKAN para agregar la información
+        actualizada en lugar de reemplazar el archivo anterior, lo que impide calcular correctamente
+        la relación entre lo que los Planes de apertura de datos indican y lo que se publica en la
+        PNDA
       </div>
     </div>
     <div class="flex contenedor-seccion flex-contenido-separado">
@@ -499,73 +451,74 @@ onMounted(async () => {
       </div>
     </div>
     <img id="plantilla" src="/plantilla.png" style="display: none" />
-    <table v-if="dataConPlan" class="tabla-exportable" :id="`tabla-exportable`" v-show="false">
+    <table class="tabla-exportable" :id="`tabla-exportable`" v-show="false">
       <thead class="header-tabla">
         <tr>
           <th colspan="4">En plan</th>
           <th colspan="3">Publicados</th>
         </tr>
         <tr>
-          <th v-for="columna of encabezadosTablaExportable" :key="columna">{{ columna }}</th>
+          <th v-for="columna of encabezados['exportable']" :key="columna">
+            {{ dictColumnas[columna] }}
+          </th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="sector in listaSectores" :key="formatearTexto(sector)">
-          <td>
-            {{ sector }}
-          </td>
-          <td
-            v-for="columna of Object.keys(dictColumnasConjuntos[seccionSeleccionada])"
-            :key="columna"
-          >
-            {{ data[sector][columna] }}
+        <tr v-for="sector in data['con_plan']" :key="formatearTexto(sector.sector)">
+          <td v-for="columna of encabezados['exportable']" :key="`fila-exportable-${columna}`">
+            <span v-if="columna == 'porcentaje'">
+              {{ d3.format(',.2f')(sector[columna]) }}
+            </span>
+            <span v-else-if="columna != 'sector_compuesto'">{{
+              d3.format(',')(sector[columna])
+            }}</span>
+            <span v-else>{{ sector[columna] }}</span>
           </td>
         </tr>
       </tbody>
     </table>
-    <div v-for="sector of listaSectores" :key="`desplegable-${sector}`" class="m-y-4 m-x-3">
+    <div
+      v-for="fila of data[seccionSeleccionada].filter((d) => d.clave_sector !== '999')"
+      :key="`desplegable-${formatearTexto(fila.sector)}`"
+      class="m-y-4 m-x-3"
+    >
       <div class="flex flex-contenido-separado contenedor-sector">
-        <h6 class="m-x-2">{{ sector }}</h6>
-        <button
-          class="boton-tabla"
-          v-if="!data[sector]['show']"
-          @click="data[sector]['show'] = true"
-        >
+        <h6 class="m-x-2">{{ fila.sector_compuesto }}</h6>
+        <button class="boton-tabla" v-if="!fila['desplegado']" @click="fila['desplegado'] = true">
           <IconoExpandir />
         </button>
-        <button
-          class="boton-tabla"
-          v-if="data[sector]['show']"
-          @click="data[sector]['show'] = false"
-        >
+        <button class="boton-tabla" v-if="fila['desplegado']" @click="fila['desplegado'] = false">
           <IconoContraer />
         </button>
       </div>
 
-      <table class="tabla-sectores" :id="`tabla-sector-${formatearTexto(sector)}`">
+      <table class="tabla-sectores" :id="`tabla-sector-${formatearTexto(fila.sector)}`">
         <thead class="header-tabla">
           <tr>
-            <th
-              v-for="columna of Object.keys(dictColumnasConjuntos[seccionSeleccionada])"
-              :key="columna"
-            >
-              {{ dictColumnasConjuntos[seccionSeleccionada][columna] }}:
-              <span class="total-tabla">{{ data[sector][columna] }}</span>
+            <th v-for="columna of encabezados[seccionSeleccionada]" :key="columna">
+              {{ dictColumnas[columna] }}:
+              <span v-if="columna == 'porcentaje'" class="total-tabla">
+                {{ d3.format(',.2f')(fila[columna]) }}
+              </span>
+              <span v-else class="total-tabla">{{ fila[columna] }}</span>
             </th>
           </tr>
         </thead>
 
-        <tbody v-if="data[sector]['show']">
-          <tr v-for="fila of data[sector]['tabla']" :key="data[sector]['tabla'].indexOf(fila)">
+        <tbody v-if="fila['desplegado']">
+          <tr
+            v-for="institucion of fila['data']"
+            :key="formatearTexto(institucion.nombre_institucion)"
+          >
             <td
-              v-for="columna in Object.keys(dictColumnasConjuntos[seccionSeleccionada])"
-              :key="`td-${fila.sector}-${columna}`"
+              v-for="columna of encabezados[seccionSeleccionada]"
+              :key="`td-${formatearTexto(institucion.nombre_institucion)}-${columna}`"
             >
-              <div v-if="columna == 'porcentaje_recursos'">
-                {{ d3.format(',.2f')(fila[columna]) }}
+              <div v-if="columna == 'porcentaje'">
+                {{ d3.format(',.2f')(institucion[columna]) }}
               </div>
 
-              <div v-else>{{ fila[columna] }}</div>
+              <div v-else>{{ institucion[columna] }}</div>
             </td>
           </tr>
         </tbody>
