@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import * as d3 from 'd3'
 
 export const useDataStore = defineStore('data', () => {
+  const metodo = ref('unicos')
   const seccion = ref('ptar')
   const mostrarBarra = ref(false)
   const dataConjuntos = ref([])
@@ -19,6 +20,13 @@ export const useDataStore = defineStore('data', () => {
   const totalEtiquetas = computed(() => d3.format(',')(setEtiquetas.value.length))
   const institucionSeleccionada = ref(null)
 
+  const actualizarMetodo = function () {
+    if (metodo.value === 'unicos') {
+      metodo.value = 'filas'
+    } else if (metodo.value === 'filas') {
+      metodo.value = 'unicos'
+    }
+  }
   const abrirModal = function () {
     modalAbierto.value = true
   }
@@ -48,6 +56,7 @@ export const useDataStore = defineStore('data', () => {
   }
 
   return {
+    metodo,
     modalAbierto,
     seccion,
     mostrarBarra,
@@ -69,5 +78,6 @@ export const useDataStore = defineStore('data', () => {
     toggleSideBar,
     abrirModal,
     cerrarModal,
+    actualizarMetodo,
   }
 })

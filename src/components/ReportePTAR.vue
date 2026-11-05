@@ -1,4 +1,5 @@
 <script setup>
+import MetodoSlider from './base/MetodoSlider.vue'
 import * as d3 from 'd3'
 import unidecode from 'unidecode'
 import { jsPDF } from 'jspdf'
@@ -7,13 +8,17 @@ import IconoError from './icons/IconoError.vue'
 import IconoExpandir from './icons/IconoExpandir.vue'
 import IconoContraer from './icons/IconoContraer.vue'
 import IconoCarga from './icons/IconoCarga.vue'
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import notoRegular from '../assets/Noto_Sans/static/NotoSans-Regular.ttf?inline'
 import notoBold from '../assets/Noto_Sans/static/NotoSans-Bold.ttf?inline'
 import { useDataStore } from '@/stores/data.js'
 applyPlugin(jsPDF)
-const dataStore = useDataStore()
 
+const dataStore = useDataStore()
+const metodologia = computed(() => dataStore.metodo)
+const endpoint = computed(() =>
+  dataStore.metodo === 'unicos' ? `publicacion_instituciones_unicos` : `publicacion_instituciones`,
+)
 const hoy = d3.utcFormat('%d-%m-%Y')(new Date())
 const anio = 2026
 const seccionSeleccionada = ref('con_plan')
@@ -35,8 +40,8 @@ const dictColumnas = {
   nombre_institucion: 'Instituciones',
   conjuntos_en_plan: 'Conjuntos en plan',
   recursos_en_plan: 'Recursos en plan',
-  conjuntos_creados_ckan: 'Conjuntos publicados',
-  recursos_creados_ckan: 'Recursos publicados',
+  conjuntos_publicados: 'Conjuntos publicados',
+  recursos_publicados: 'Recursos publicados',
   porcentaje: 'Porcentaje',
 }
 const encabezados = {
@@ -45,19 +50,19 @@ const encabezados = {
     'nombre_institucion',
     'conjuntos_en_plan',
     'recursos_en_plan',
-    'conjuntos_creados_ckan',
-    'recursos_creados_ckan',
+    'conjuntos_publicados',
+    'recursos_publicados',
     'porcentaje',
   ],
   con_plan: [
     'nombre_institucion',
     'conjuntos_en_plan',
     'recursos_en_plan',
-    'conjuntos_creados_ckan',
-    'recursos_creados_ckan',
+    'conjuntos_publicados',
+    'recursos_publicados',
     'porcentaje',
   ],
-  sin_plan: ['nombre_institucion', 'conjuntos_creados_ckan', 'recursos_creados_ckan'],
+  sin_plan: ['nombre_institucion', 'conjuntos_publicados', 'recursos_publicados'],
 }
 
 const numeralias = ref({
@@ -81,7 +86,7 @@ async function solicitarDatos() {
 
     // Solicitamos la información correspondiente al año de interés
     const request_ptar = await fetch(
-      `${import.meta.env.VITE_BACKEND_URL}/api/publicacion_instituciones_unicos?anio=2026`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/${endpoint.value}?anio=2026`,
     )
     const response_ptar = await request_ptar.json()
     numeralias.value['Instituciones'] = response_ptar.num_instituciones
@@ -183,7 +188,6 @@ const generarReporte = async function () {
         maxWidth: 170,
       },
     )
-    //posicionY += (6 * config.padding) / 2
     posicionY += 2 * config.padding
     // 6. Agregamos el subtitulo
     doc.setTextColor(102, 102, 102)
@@ -223,23 +227,28 @@ const generarReporte = async function () {
       windowWidth: 650,
     })
     posicionY += 2 * config.padding
-    /*const parrafo2 = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
+
+    const parrafo2 =
+      metodologia.value === 'unicos'
+        ? `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
+     En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se 
+     contabilizan las bases de datos que pertenecen a instituciones que publicaron su Plan de Apertura 
+     de Datos en la Plataforma. Los valores de las columnas conjuntos en plan y recursos en plan 
+     consideran solo una vez las bases de datos cuyos nombres se repiten en el Plan, las repeticiones 
+     en dicho documento se refieren al número de actualizaciones que tiene esa base de datos durante 
+     el año (ver Manual Operativo). <br/> 
+      El cálculo de las bases de datos del Plan y de las bases de datos publicadas en la Plataforma <b>no es 
+      comparable</b>, ya que debido al funcionamiento del sistema no es posible contabilizar las bases 
+      que se sobrescriben, es decir, que sustituyen a una base previamente publicada.
+    </p>`
+        : `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
      En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se contabilizan las bases de datos
-     pertenecientes a instituciones que publicaron su Plan de apertura de datos. <s>Los datos consideran
+     pertenecientes a instituciones que publicaron su Plan de apertura de datos. Los datos consideran
      la publicación de nuevas bases de datos así como la sobreescritura de las mismas, es decir, cuando en el
      proceso de actualización una base reemplaza a su versión anterior. Cabe mencionar que la estructura del
      CKAN impide tener registro de dos tipos de actualización: 1)sobreescritura de las bases de datos y
-     2)actualización de los metadatos de las bases de datos.</s> En consecuencia, <b>las métricas no reflejan
-      la totalidad del trabajo realizado</b>.
-    </p>`*/
-    const parrafo2 = `<p style="font-family: 'Noto Sans', sans-serif; font-size:12px; width:650px">
-     En la siguiente tabla se reporta el número de bases de datos publicadas por sector; únicamente se contabilizan las bases de datos
-     pertenecientes a instituciones que publicaron su Plan de apertura de datos. Los valores de las columnas Conjuntos en plan y Recursos
-      en plan consideran solo una vez las bases de datos cuyos nombres se repiten en el Plan de apertura de datos al
-      que pertenecen; dichas repeticiones se deben a que la información de la base será actualizada a lo largo del
-      año. Sin embargo, hay ocasiones en las que se crea un nuevo recurso en el CKAN para agregar la información actualizada en
-      lugar de reemplazar el archivo anterior, lo que impide calcular correctamente la relación entre lo que los Planes de
-      apertura de datos indican y lo que se publica en la PNDA.
+     2)actualización de los metadatos de las bases de datos. En consecuencia, <b>las métricas no reflejan
+      la totalidad de bases de datos publicadas y actualizadas</b>. 
     </p>`
 
     await doc.html(parrafo2, {
@@ -249,7 +258,12 @@ const generarReporte = async function () {
       windowWidth: 650,
     })
 
-    posicionY += 5 * config.padding
+    if (metodologia.value === 'unicos') {
+      posicionY += 6 * config.padding
+    } else {
+      posicionY += 5 * config.padding
+    }
+
     // 9. Agregamos el título de la tabla
     doc.setFont('NotoSans', 'bold')
     doc.setTextColor(67, 67, 67)
@@ -308,7 +322,7 @@ const generarReporte = async function () {
     })
 
     // Guardamos el documento
-    doc.save(`${nombreReporte.value}.pdf`)
+    doc.save(`${nombreReporte.value}_${metodologia.value}.pdf`)
 
     return 'Exito'
   } catch (error) {
@@ -333,7 +347,11 @@ function cerrarModal() {
 onMounted(async () => {
   cerrarModal()
   await solicitarDatos()
-  //armarDataConPlan()
+})
+
+watch(metodologia, async (nv) => {
+  console.log(nv)
+  await solicitarDatos()
 })
 </script>
 <template>
@@ -373,23 +391,13 @@ onMounted(async () => {
     </div>
   </div>
 
-  <div class="flex flex-contenido-centrado" id="spinner-01">
-    <div v-if="isLoading" id="spinner flex-vertical-centrado" class="m-y-8">
-      <IconoCarga />
-    </div>
-    <div
-      v-if="wasFetchigSuccesful === false && !isLoading"
-      id="error-01"
-      class="p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
-    >
-      <IconoError />
-      Ocurrió un error
-    </div>
-  </div>
-
-  <div class="p-x-3" v-if="wasFetchigSuccesful && !isLoading">
+  <div class="p-x-3">
     <h1>Plataforma Nacional de Datos Abiertos</h1>
-    <h2>Estadísticas</h2>
+    <div class="flex flex-contenido-separado">
+      <h2>Estadísticas</h2>
+      <MetodoSlider />
+    </div>
+    <!--Notas metodológicas-->
     <p>
       Los siguientes datos se obtuvieron del sistema de gestión de datos CKAN, que alimenta la
       Plataforma Nacional de Datos Abiertos. Se compara información obtenida de los
@@ -397,38 +405,70 @@ onMounted(async () => {
       <b>publicadas durante el {{ anio }}</b
       >.
     </p>
-    <div class="m-y-5 flex flex-contenido-centrado contenedor-numeralias">
+    <div class="flex flex-contenido-centrado">
+      <div class="columna-12 cuadro-informacion p-3">
+        <p v-if="metodologia == 'unicos'">
+          Los valores reportados para <b>conjuntos en plan</b> y <b>recursos en plan</b> consideran
+          solo una vez las bases de datos cuyos nombres se repiten en el Plan; las repeticiones en
+          dicho documento significan el número de actualizaciones que tiene esa base de datos
+          durante el año.
+        </p>
+        <p v-if="metodologia == 'filas'">
+          Los valores reportados para <b>conjuntos en plan</b> y <b>recursos en plan</b> consideran
+          el total de filas el Plan de Apertura institucional. Mientras que los valores reportados
+          para <b>conjuntos publicados</b> y <b>recursos en publicados</b> consideran los recursos
+          nuevos así como sus actualizaciones. Sin embargo, no tenemos manera de saber el número
+          real de actualizaciones.
+        </p>
+      </div>
+    </div>
+
+    <!--Numeralias-->
+    <div class="m-y-5 flex flex-contenido-centrado">
+      <div v-if="isLoading" class="m-y-8 flex-vertical-centrado">
+        <IconoCarga />
+      </div>
       <div
-        v-for="opcion of Object.keys(numeralias)"
-        :key="opcion"
-        class="contenedor-tarjeta p-x-2"
-        :class="
-          opcion == 'Instituciones' || opcion == 'Recursos en plan' ? 'con-borde' : 'sin-borde'
-        "
+        v-if="wasFetchigSuccesful === false && !isLoading"
+        class="p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
       >
-        <div class="tarjeta">
-          <div class="tarjeta-cuerpo p-y-0">
-            <div class="numeralia m-y-0 p-y-0">{{ d3.format(',')(numeralias[opcion]) }}</div>
-            <div class="etiqueta-numeralia m-y-0 p-y-0">{{ opcion }}</div>
+        <IconoError />
+        Ocurrió un error
+      </div>
+      <div
+        v-if="wasFetchigSuccesful === true && !isLoading"
+        class="contenedor-numeralias flex flex-contenido-separado"
+      >
+        <div
+          v-for="opcion of Object.keys(numeralias)"
+          :key="opcion"
+          class="p-x-2"
+          :class="
+            opcion == 'Instituciones' || opcion == 'Recursos en plan' ? 'con-borde' : 'sin-borde'
+          "
+        >
+          <div class="tarjeta">
+            <div class="tarjeta-cuerpo p-y-0">
+              <div class="numeralia m-y-0 p-y-0">{{ d3.format(',')(numeralias[opcion]) }}</div>
+              <div class="etiqueta-numeralia m-y-0 p-y-0">{{ opcion }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <h3>Publicación de datos por sector</h3>
-    <p>
-      Los valores de las columnas <b>Conjuntos en plan</b> y <b>Recursos en plan</b> consideran solo
-      una vez las bases de datos cuyos nombres se repiten en el Plan de apertura de datos al que
-      pertenecen; dichas repeticiones se deben a que la información de la base será actualizada a lo
-      largo del año.
-    </p>
-    <div class="m-y-3 flex flex-contenido-centrado">
-      <div class="columna-12 p-3 cuadro-informacion" v-if="seccionSeleccionada == 'con_plan'">
-        Hay ocasiones en las que se crea un nuevo recurso en el CKAN para agregar la información
-        actualizada en lugar de reemplazar el archivo anterior, lo que impide calcular correctamente
-        la relación entre lo que los Planes de apertura de datos indican y lo que se publica en la
-        PNDA
-      </div>
+
+    <div class="flex flex-contenido-separado">
+      <h3>Publicación de datos por sector</h3>
     </div>
+
+    <p>
+      En la siguiente tabla se reporta el número de bases de datos publicadas por sector
+      <span v-if="seccionSeleccionada === 'con_plan'"
+        >que fueron publicadas por una institución que publicó su Plan de Apertura</span
+      >.
+    </p>
+
+    <!-- Selector de sección con plan / sin plan-->
     <div class="flex contenedor-seccion flex-contenido-separado">
       <div>
         <button
@@ -447,82 +487,111 @@ onMounted(async () => {
         </button>
       </div>
       <div>
-        <button class="boton-primario boton-exportar" @click="abrirModal">Exportar</button>
+        <button class="boton-primario boton-exportar" @click="abrirModal" :disabled="isLoading">
+          Exportar
+        </button>
       </div>
     </div>
-    <img id="plantilla" src="/plantilla.png" style="display: none" />
-    <table class="tabla-exportable" :id="`tabla-exportable`" v-show="false">
-      <thead class="header-tabla">
-        <tr>
-          <th colspan="4">En plan</th>
-          <th colspan="3">Publicados</th>
-        </tr>
-        <tr>
-          <th v-for="columna of encabezados['exportable']" :key="columna">
-            {{ dictColumnas[columna] }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="sector in data['con_plan']" :key="formatearTexto(sector.sector)">
-          <td v-for="columna of encabezados['exportable']" :key="`fila-exportable-${columna}`">
-            <span v-if="columna == 'porcentaje'">
-              {{ d3.format(',.2f')(sector[columna]) }}
-            </span>
-            <span v-else-if="columna != 'sector_compuesto'">{{
-              d3.format(',')(sector[columna])
-            }}</span>
-            <span v-else>{{ sector[columna] }}</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div
-      v-for="fila of data[seccionSeleccionada].filter((d) => d.clave_sector !== '999')"
-      :key="`desplegable-${formatearTexto(fila.sector)}`"
-      class="m-y-4 m-x-3"
-    >
-      <div class="flex flex-contenido-separado contenedor-sector">
-        <h6 class="m-x-2">{{ fila.sector_compuesto }}</h6>
-        <button class="boton-tabla" v-if="!fila['desplegado']" @click="fila['desplegado'] = true">
-          <IconoExpandir />
-        </button>
-        <button class="boton-tabla" v-if="fila['desplegado']" @click="fila['desplegado'] = false">
-          <IconoContraer />
-        </button>
+
+    <!-- Contenedores de tabla -->
+    <div class="m-y-5 flex flex-contenido-centrado">
+      <div v-if="isLoading" class="m-y-8 flex-vertical-centrado">
+        <IconoCarga />
       </div>
+      <div
+        v-if="wasFetchigSuccesful === false && !isLoading"
+        class="p-2 flex flex-contenido-centrado texto-color-error fondo-color-error borde borde-redondeado-8"
+      >
+        <IconoError />
+        Ocurrió un error
+      </div>
+      <div v-if="wasFetchigSuccesful === true && !isLoading">
+        <!-- La tabla del reporte -->
+        <img id="plantilla" src="/plantilla.png" style="display: none" />
+        <table class="tabla-exportable" :id="`tabla-exportable`" v-show="false">
+          <thead class="header-tabla">
+            <tr>
+              <th colspan="4">En plan</th>
+              <th colspan="3">Publicados</th>
+            </tr>
+            <tr>
+              <th v-for="columna of encabezados['exportable']" :key="columna">
+                {{ dictColumnas[columna] }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="sector in data['con_plan']" :key="formatearTexto(sector.sector)">
+              <td v-for="columna of encabezados['exportable']" :key="`fila-exportable-${columna}`">
+                <span v-if="columna == 'porcentaje'">
+                  {{ d3.format(',.2f')(sector[columna]) }}
+                </span>
+                <span v-else-if="columna != 'sector_compuesto'">{{
+                  d3.format(',')(sector[columna])
+                }}</span>
+                <span v-else>{{ sector[columna] }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-      <table class="tabla-sectores" :id="`tabla-sector-${formatearTexto(fila.sector)}`">
-        <thead class="header-tabla">
-          <tr>
-            <th v-for="columna of encabezados[seccionSeleccionada]" :key="columna">
-              {{ dictColumnas[columna] }}:
-              <span v-if="columna == 'porcentaje'" class="total-tabla">
-                {{ d3.format(',.2f')(fila[columna]) }}
-              </span>
-              <span v-else class="total-tabla">{{ fila[columna] }}</span>
-            </th>
-          </tr>
-        </thead>
-
-        <tbody v-if="fila['desplegado']">
-          <tr
-            v-for="institucion of fila['data']"
-            :key="formatearTexto(institucion.nombre_institucion)"
-          >
-            <td
-              v-for="columna of encabezados[seccionSeleccionada]"
-              :key="`td-${formatearTexto(institucion.nombre_institucion)}-${columna}`"
+        <!-- La tabla -->
+        <div
+          v-for="fila of data[seccionSeleccionada].filter((d) => d.clave_sector !== '999')"
+          :key="`desplegable-${formatearTexto(fila.sector)}`"
+          class="m-y-4 m-x-3"
+        >
+          <div class="flex flex-contenido-separado contenedor-sector">
+            <h6 class="m-x-2">{{ fila.sector_compuesto }}</h6>
+            <button
+              class="boton-tabla"
+              v-if="!fila['desplegado']"
+              @click="fila['desplegado'] = true"
             >
-              <div v-if="columna == 'porcentaje'">
-                {{ d3.format(',.2f')(institucion[columna]) }}
-              </div>
+              <IconoExpandir />
+            </button>
+            <button
+              class="boton-tabla"
+              v-if="fila['desplegado']"
+              @click="fila['desplegado'] = false"
+            >
+              <IconoContraer />
+            </button>
+          </div>
 
-              <div v-else>{{ institucion[columna] }}</div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          <table class="tabla-sectores" :id="`tabla-sector-${formatearTexto(fila.sector)}`">
+            <thead class="header-tabla">
+              <tr>
+                <th v-for="columna of encabezados[seccionSeleccionada]" :key="columna">
+                  {{ dictColumnas[columna] }}:
+                  <span v-if="columna == 'porcentaje'" class="total-tabla">
+                    {{ d3.format(',.2f')(fila[columna]) }}
+                  </span>
+                  <span v-else class="total-tabla">{{ fila[columna] }}</span>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody v-if="fila['desplegado']">
+              <tr
+                v-for="institucion of fila['data']"
+                :key="formatearTexto(institucion.nombre_institucion)"
+              >
+                <td
+                  v-for="columna of encabezados[seccionSeleccionada]"
+                  :key="`td-${formatearTexto(institucion.nombre_institucion)}-${columna}`"
+                >
+                  <div v-if="columna == 'porcentaje'">
+                    {{ d3.format(',.2f')(institucion[columna]) }}
+                  </div>
+
+                  <div v-else>{{ institucion[columna] }}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -534,9 +603,6 @@ h2,
 h3 {
   color: var(--color-encabezados);
 }
-.tarjeta {
-  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.25) !important;
-}
 
 .modal-personalizado {
   background-color: var(--color-neutro-1);
@@ -547,13 +613,14 @@ h3 {
 }
 
 .contenedor-numeralias {
+  width: 100%;
   gap: 0px;
 }
-.contenedor-tarjeta {
-  width: 20%;
+.tarjeta {
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.25) !important;
 }
 .con-borde {
-  border-right: 2px solid var(--color-neutro-2);
+  border-right: 2px solid var(--color-neutro-3);
 }
 .numeralia {
   font-size: 55px;
